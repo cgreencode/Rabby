@@ -16,8 +16,7 @@ chrome.runtime.onConnect.addListener((port) => {
   pm.listen((req) => {
     if (!port?.sender?.tab) return
     const sessionId = port.sender.tab.id;
-    // TODO: FIXME
-    req.session = session.createSession(sessionId, null);
+    req.session = session.getSession(sessionId);
 
     // for background push to respective page
     req.session.pushMessage = (event, data) => {

@@ -10,7 +10,7 @@ const Approval = () => {
   const history = useHistory();
   const [account, setAccount] = useState('');
   const wallet = useWallet();
-  const [approval, handleNext] = useApproval();
+  const [approval, resolveApproval, rejectApproval] = useApproval();
 
   const init = async () => {
     const account = await wallet.getAccount();
@@ -22,11 +22,11 @@ const Approval = () => {
   }, [account]);
 
   const handleCancel = () => {
-    handleNext('user reject');
+    rejectApproval('user reject');
   };
 
   const handleAllow = () => {
-    handleNext();
+    resolveApproval();
   };
 
   const Content =

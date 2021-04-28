@@ -10,14 +10,14 @@ const ImportMnemonic = () => {
     handleSubmit,
   } = useForm({ mode: 'onChange' });
   const wallet = useWallet();
-  const [, handleApproval] = useApproval();
+  const [, resolveApproval] = useApproval();
 
   const onSubmit = async ({ mnemonics }) => {
     try {
       await wallet.importMnemonics(mnemonics.trim());
       wallet.setup();
 
-      handleApproval();
+      resolveApproval();
     } catch (err) {
       console.error('err', err);
     }
