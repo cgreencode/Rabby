@@ -1,9 +1,9 @@
 class Session {
-  origin:string = ''
+  origin = '';
 
-  icon: string = ''
+  icon = '';
 
-  name: string = ''
+  name = '';
 
   constructor(data) {
     if (data) {
@@ -41,7 +41,7 @@ const deleteSession = (id) => {
 };
 
 const broadcastEvent = (ev, data?, origin?) => {
-  let sessions = [...Array.from(sessionMap)];
+  let sessions = Array.from(sessionMap);
 
   // same origin
   if (origin) {
