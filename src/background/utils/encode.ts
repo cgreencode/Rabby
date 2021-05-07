@@ -1,4 +1,4 @@
-export const addHexPrefix = (str: string) => {
+export const addHexPrefix = (str) => {
   if (typeof str !== 'string' || str.match(/^-?0x/u)) {
     return str;
   }

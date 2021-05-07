@@ -1,26 +1,20 @@
 import { storage } from 'background/webapi';
 import { debounce } from 'debounce';
 
-const persistStorage = (name: string, obj: object) => debounce(storage.set(name, obj), 1000);
+const persistStorage = (name, obj) => debounce(storage.set(name, obj), 1000);
 
-interface CreatePersistStoreParams<T> {
-  name: string,
-  origin?: T,
-  fromStorage?: boolean
-}
-
-const createPersistStore = async <T extends object>({
+const createPersistStore = async ({
   name,
   origin = Object.create(null),
   fromStorage = true,
-}: CreatePersistStoreParams<T>): Promise<T> => {
+}) => {
   let template = origin;
 
   if (fromStorage) {
     template = await storage.get(name) || origin;
   }
 
-  const createProxy = <A extends object>(obj: A): A => new Proxy(obj, {
+  const createProxy = (obj) => new Proxy(obj, {
     set(target, prop, value) {
       if (typeof value === 'object' && value !== null) {
         target[prop] = createProxy(value);
@@ -44,7 +38,7 @@ const createPersistStore = async <T extends object>({
     }
   });
 
-  return createProxy<T>(template);
+  return createProxy(template);
 }
 
 export default createPersistStore;
