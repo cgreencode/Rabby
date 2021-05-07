@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import { Input, Button, Form } from 'antd';
-import { Footer, QrScan } from 'ui/component';
+import { Footer } from 'ui/component';
 import { useWallet, useApproval } from 'ui/utils';
 
 const Unlock = () => {
@@ -11,7 +11,7 @@ const Unlock = () => {
 
   const onSubmit = async ({ password }) => {
     try {
-      await wallet.submitPassword(password);
+      await wallet.unlock(password);
       resolveApproval();
     } catch (err) {
       setErr(err?.message || '密码错误');
@@ -26,12 +26,10 @@ const Unlock = () => {
         <Form.Item
           className="mb-0"
           name="password"
-          rules={[{ required: true, message: 'Please input Password' }]}
-        >
+          rules={[{ required: true, message: 'Please input Password' }]}>
           <Input placeholder="Password" />
         </Form.Item>
         <div className="text-red-500">{error}</div>
-        <QrScan />
         <Footer>
           <Button block htmlType="submit">
             Unlock

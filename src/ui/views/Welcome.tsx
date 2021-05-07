@@ -4,7 +4,10 @@ import { useHistory, Link } from 'react-router-dom';
 const Welcome = () => {
   const history = useHistory();
 
-  return <Link to="/start">welcome</Link>;
-};
+  return (
+    <Link to="/start">welcome</Link>
+  )
+
+}
 
 export default Welcome;

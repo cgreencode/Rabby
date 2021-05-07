@@ -1,9 +1,9 @@
 class Session {
-  origin = '';
+  origin:string = ''
 
-  icon = '';
+  icon: string = ''
 
-  name = '';
+  name: string = ''
 
   constructor(data) {
     if (data) {

@@ -1,17 +1,8 @@
-import { Message } from 'utils';
+import { Message, insertScript } from 'utils';
 
 const { PortMessage, DomMessage } = Message;
 
-function injectPage(url) {
-  const s = document.createElement('script');
-  s.src = chrome.runtime.getURL('pageProvider.js');
-  s.addEventListener('load', function () {
-    this.remove();
-  });
-  (document.head || document.documentElement).appendChild(s);
-}
-
-injectPage('pageProvider.js');
+insertScript('pageProvider.js').then((ele) => ele.remove());
 
 const pm = new PortMessage().connect();
 

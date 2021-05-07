@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input } from 'antd';
+import { Form, Input } from 'antd'
 import { Footer, Header } from 'ui/component';
 import { useWallet, useApproval } from 'ui/utils';
 
@@ -11,7 +11,6 @@ const ImportMnemonic = () => {
   const onSubmit = async ({ mnemonics }) => {
     try {
       await wallet.importMnemonics(mnemonics.trim());
-      wallet.setup();
 
       resolveApproval();
     } catch (err) {
@@ -26,10 +25,7 @@ const ImportMnemonic = () => {
         subTitle="Please input your mnemonics below"
       />
       <Form onFinish={onSubmit} form={form}>
-        <Form.Item
-          name="mnemonics"
-          rules={[{ required: true, message: 'Please input Mnemonics' }]}
-        >
+        <Form.Item name="mnemonics" rules={[{ required: true, message: 'Please input Mnemonics' }]}>
           <Input.TextArea placeholder="Mnemonics" />
         </Form.Item>
         <Footer.Nav />

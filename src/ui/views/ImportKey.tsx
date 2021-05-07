@@ -11,23 +11,19 @@ const ImportKey = () => {
   const onSubmit = async ({ key }) => {
     try {
       await wallet.importKey(key);
-      wallet.setup();
 
       resolveApproval();
     } catch (err) {
       console.error('err', err);
     }
   };
-  console.log(form.getFieldsError());
+  console.log(form.getFieldsError())
   return (
     <>
       <h4 className="font-bold">Import Private Key</h4>
       <p className="text-xs mt-2">Please input your private key below</p>
       <Form onFinish={onSubmit}>
-        <Form.Item
-          name="key"
-          rules={[{ required: true, message: 'Please input Private key' }]}
-        >
+        <Form.Item name="key" rules={[{ required: true, message: 'Please input Private key' }]}>
           <Input placeholder="Private key" />
         </Form.Item>
         <Footer.Nav />

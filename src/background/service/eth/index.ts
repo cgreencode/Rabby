@@ -5,9 +5,6 @@ import LedgerBridgeKeyring from '@metamask/eth-ledger-bridge-keyring';
 import { ethErrors } from 'eth-rpc-errors';
 import { addHexPrefix } from 'background/utils';
 import { storage } from 'background/webapi';
-import { noop } from 'ui/utils';
-
-// trezor: do read https://github.com/trezor/connect/blob/develop/src/js/plugins/webextension/README.md
 
 const KEYRING_TYPE = {
   mnemonic: 'HD Key Tree',
@@ -20,7 +17,7 @@ class Eth {
     this.initKeyringService();
   }
 
-  password = '';
+  password: string = '';
 
   keyringService: any;
 
@@ -67,9 +64,9 @@ class Eth {
 
   isUnlocked = () => this.keyringService.memStore.getState().isUnlocked;
 
-  submitPassword = (password) => this.keyringService.submitPassword(password);
+  unlock = (password) => this.keyringService.submitPassword(password);
 
-  getAccounts = noop;
+  getAccounts = () => {};
 
   getKeyringByType = (type) => {
     const keyring = this.keyringService.getKeyringsByType(type)[0];

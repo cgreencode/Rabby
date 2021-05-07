@@ -1,7 +1,6 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TSConfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-const ESLintWebpackPlugin = require('eslint-webpack-plugin')
 
 const paths = require('./paths');
 
@@ -67,9 +66,6 @@ const config = {
     ],
   },
   plugins: [
-    new ESLintWebpackPlugin({
-      extensions: ['ts', 'tsx', 'js', 'jsx']
-    }),
     new HtmlWebpackPlugin({
       inject: true,
       template: paths.popupHtml,
@@ -81,6 +77,12 @@ const config = {
       template: paths.notificationHtml,
       chunks: ['ui'],
       filename: 'notification.html',
+    }),
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: paths.indexHtml,
+      chunks: ['ui'],
+      filename: 'index.html',
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],

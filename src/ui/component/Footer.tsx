@@ -5,20 +5,19 @@ import { Button } from 'antd';
 import { noop } from 'ui/utils';
 
 interface FooterProps {
-  className?: string;
-  children: ReactNode;
+  className?: string,
+  children: ReactNode
 }
 
 interface NavProps {
-  onNextClick?(): void;
-  onBackClick?(): void;
-  backDisabled?: boolean;
-  nextDisabled?: boolean;
+  onNextClick?(): void
+  onBackClick?(): void
+  backDisabled?: boolean
+  nextDisabled?: boolean
 }
 
-interface CompoundedComponent
-  extends React.MemoExoticComponent<React.FunctionComponent<FooterProps>> {
-  Nav: typeof Nav;
+interface CompoundedComponent extends React.MemoExoticComponent<React.FunctionComponent<FooterProps>> {
+  Nav: typeof Nav
 }
 
 const Footer = memo(({ className, children }: FooterProps) => {
@@ -49,8 +48,7 @@ const Nav = memo(
           <Button
             block
             disabled={backDisabled}
-            onClick={onBackClick || handleBack}
-          >
+            onClick={onBackClick || handleBack}>
             Back
           </Button>
           <Button
@@ -58,8 +56,7 @@ const Nav = memo(
             disabled={nextDisabled}
             type="primary"
             htmlType="submit"
-            onClick={onNextClick}
-          >
+            onClick={onNextClick}>
             Next
           </Button>
         </div>
@@ -68,6 +65,6 @@ const Nav = memo(
   }
 );
 
-Footer.Nav = Nav;
+Footer.Nav = Nav
 
 export default Footer;

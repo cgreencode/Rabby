@@ -22,15 +22,11 @@ class Preference {
   };
 
   isSetup = () => {
-    if (!this.store) return;
-
-    return this.store.setup;
+    return this.store?.setup;
   };
 
   getCurrentAccount = () => {
-    if (!this.store) return;
-
-    return this.store.currentAccount;
+    return this.store?.currentAccount;
   };
 
   setCurrentAccount = (val) => {
