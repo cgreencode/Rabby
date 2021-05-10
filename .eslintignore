@@ -1,4 +1,5 @@
 build/*
 dist/*
 webpack.config.js
-_raw/*
+jest.config.js
+_raw
