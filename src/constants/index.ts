@@ -34,8 +34,3 @@ export const CHAINS = {
     name: 'Heco',
   },
 };
-
-export const KEYRING_TYPE = {
-  'HD Key Tree': 'Mnemonics addresses',
-  'Simple Key Pair': 'Private key addresses',
-};

@@ -45,7 +45,7 @@ export interface DisplayedKeryring {
   accounts: string[];
 }
 
-class keyringService extends EventEmitter {
+class KeyringService extends EventEmitter {
   //
   // PUBLIC METHODS
   //
@@ -762,7 +762,7 @@ class keyringService extends EventEmitter {
     });
   }
 
-  getAllTypedAccounts(): Promise<DisplayedKeryring[]> {
+  getAllTypedAccounts() {
     return Promise.all(this.keyrings.map(this.displayForKeyring));
   }
 
@@ -806,4 +806,4 @@ class keyringService extends EventEmitter {
   }
 }
 
-export default new keyringService();
+export default new KeyringService();
