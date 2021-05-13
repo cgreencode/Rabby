@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "module": "commonjs",
     "target": "es2015",
     "moduleResolution": "node",
@@ -12,8 +14,7 @@
       "@/*": ["./src/*"],
       "ui/*": ["./src/ui/*"],
       "background/*": ["./src/background/*"],
-      "consts": ["./src/constants"],
-      "assets": ["./src/ui/assets"]
+      "consts": ["./src/constants"]
     },
     "types": ["chrome", "node", "react", "react-dom", "jest"],
     "jsx": "react",

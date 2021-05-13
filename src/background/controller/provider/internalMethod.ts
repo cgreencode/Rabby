@@ -1,6 +1,4 @@
-import { CHAINS_ENUM, CHAINS } from 'consts';
-
-const tabConnect = ({
+const tabCheckin = ({
   data: {
     params: { origin, name, icon },
   },
@@ -11,12 +9,12 @@ const tabConnect = ({
 
 const getProviderState = (req) => {
   return {
-    chainId: CHAINS[CHAINS_ENUM.ETH].id,
+    chainId: 1,
     // accounts: methodMap.getAccounts(req),
   };
 };
 
 export default {
-  tabConnect,
+  tabCheckin,
   getProviderState,
 };

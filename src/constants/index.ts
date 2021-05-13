@@ -7,30 +7,18 @@ export const APPROVAL_STATE = {
   END: 5,
 };
 
-export enum CHAINS_ENUM {
-  ETH,
-  BSC,
-  DAI,
-  HECO,
-  POLYGON,
-}
-
 export const CHAINS = {
-  [CHAINS_ENUM.ETH]: {
-    id: 1,
+  1: {
     name: 'Ethereum',
     hex: '0x1',
   },
-  [CHAINS_ENUM.BSC]: {
-    id: 56,
+  56: {
     name: 'BSC',
   },
-  [CHAINS_ENUM.DAI]: {
-    id: 100,
+  100: {
     name: 'XDAI',
   },
-  [CHAINS_ENUM.HECO]: {
-    id: 128,
+  128: {
     name: 'Heco',
   },
 };

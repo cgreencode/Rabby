@@ -7,11 +7,11 @@ const SortHat = () => {
   const wallet = useWallet();
   const [to, setTo] = useState('');
   // eslint-disable-next-line prefer-const
-  let [approval, _, rejectApproval] = useApproval();
+  let [approval, , rejectApproval] = useApproval();
 
   const loadView = async () => {
     const isInNotification = isNotification();
-    const isSetup = wallet.isSetup();
+    const isBooted = wallet.isBooted();
     const isUnlocked = wallet.isUnlocked();
 
     if (!isInNotification) {
@@ -23,7 +23,7 @@ const SortHat = () => {
 
     if (isInNotification && !approval) {
       window.close();
-    } else if (!isSetup) {
+    } else if (!isBooted) {
       setTo('/password');
     } else if (!isUnlocked) {
       setTo('/unlock');

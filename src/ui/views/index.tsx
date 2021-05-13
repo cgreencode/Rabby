@@ -3,7 +3,7 @@ import { HashRouter as Router, Switch, Route } from 'react-router-dom';
 import { WalletProvider, usePopupOpen } from 'ui/utils';
 import ReactGA, { ga } from 'react-ga';
 import ImportMode from './ImportMode';
-import ImportKey from './ImportKey';
+import ImportPrivateKey from './ImportPrivateKey';
 import ImportJson from './ImportJson';
 import ImportMnemonics from './ImportMnemonics';
 import ImportHardware from './ImportHardware';
@@ -18,7 +18,9 @@ import CreatePassword from './CreatePassword';
 import Start from './Start';
 import CreateMnemonics from './CreateMnemonics';
 
-ReactGA.initialize('UA-196541140-1');
+ReactGA.initialize('UA-196541140-1', {
+  debug: true,
+});
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 ga('set', 'checkProtocolTask', function () {});
 ga('require', 'displayfeatures');
@@ -34,7 +36,7 @@ const Main = () => {
 
   return (
     <Router>
-      <main className="relative min-h-full">
+      <main className="p-6 relative min-h-full">
         <Route path="/" component={LogPageView} />
         <Switch>
           <Route exact path="/password">
@@ -50,7 +52,7 @@ const Main = () => {
             <ImportMode />
           </Route>
           <Route exact path="/import/key">
-            <ImportKey />
+            <ImportPrivateKey />
           </Route>
           <Route exact path="/import/json">
             <ImportJson />
@@ -91,7 +93,7 @@ const Main = () => {
   );
 };
 
-const App = ({ wallet }: { wallet: any }) => (
+const App = ({ wallet }) => (
   <WalletProvider wallet={wallet}>
     <Main />
   </WalletProvider>

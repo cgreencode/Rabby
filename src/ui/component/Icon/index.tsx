@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'clsx';
 
-import './index.less';
+import './index.css';
 
 interface IconProps {
   type: string;

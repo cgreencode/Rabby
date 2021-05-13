@@ -46,6 +46,7 @@ const createPersistStore = async <T extends object>({
         return true;
       },
     });
+
   return createProxy<T>(tpl);
 };
 

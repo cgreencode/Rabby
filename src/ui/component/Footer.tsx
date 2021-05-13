@@ -55,7 +55,6 @@ const Nav = memo(
           </Button>
           <Button
             block
-            key="submit"
             disabled={nextDisabled}
             type="primary"
             htmlType="submit"
