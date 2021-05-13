@@ -13,20 +13,27 @@ import { KEYRING_CLASS, DisplayedKeryring } from 'background/service/keyring';
 import { addHexPrefix } from 'background/utils';
 import BaseController from './base';
 
-class WalletController extends BaseController {
+export class WalletController extends BaseController {
   getApproval = notification.getApproval;
   resolveApproval = notification.resolveApproval;
   rejectApproval = notification.rejectApproval;
 
+  unlock = keyringService.submitPassword;
   isUnlocked = () => keyringService.memStore.getState().isUnlocked;
+  lockWallet = () => {
+    keyringService.setLocked();
+    session.broadcastEvent('disconnect');
+  };
 
   boot = keyringService.boot;
-
-  isSetup = () => keyringService.isBooted;
-
-  unlock = keyringService.submitPassword;
+  isBooted = () => keyringService.isBooted;
 
   getConnectedSites = permission.getConnectedSites;
+  getRecentConnectedSites = permission.getRecentConnectSites;
+  getCurrentConnectedSite = (tabId: number) => {
+    const { origin } = session.getOrCreateSession(tabId);
+    return permission.getWithoutUpdate(origin);
+  };
   removeConnectedSite = permission.removeConnectedSite;
 
   getCurrentMnemonics = async () => {
@@ -38,12 +45,6 @@ class WalletController extends BaseController {
   };
 
   createNewVaultInMnenomic = keyringService.createNewVaultInMnenomic;
-
-  lockWallet = () => {
-    keyringService.setLocked();
-    session.broadcastEvent('disconnect');
-  };
-
   clearKeyrings = keyringService.clearKeyrings;
 
   importPrivateKey = async (data) => {
