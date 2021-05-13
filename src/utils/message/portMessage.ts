@@ -44,10 +44,6 @@ class PortMessage extends Message {
     if (!this.port) return;
     this.port.postMessage({ _type_: `${this.EVENT_PRE}${type}`, data });
   };
-
-  dispose = () => {
-    this.port?.disconnect();
-  };
 }
 
 export default PortMessage;
