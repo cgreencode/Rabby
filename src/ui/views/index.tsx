@@ -15,8 +15,9 @@ import Approval from './Approval';
 import SortHat from './SortHat';
 import Unlock from './Unlock';
 import CreatePassword from './CreatePassword';
-import Start from './Start';
+import NoAddress from './NoAddress';
 import CreateMnemonics from './CreateMnemonics';
+import AddAddress from './AddAddress';
 
 ReactGA.initialize('UA-196541140-1');
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -39,8 +40,8 @@ const Main = () => {
         <Route exact path="/password">
           <CreatePassword />
         </Route>
-        <Route exact path="/start">
-          <Start />
+        <Route exact path="/no-address">
+          <NoAddress />
         </Route>
         <Route exact path="/create">
           <CreateMnemonics />
@@ -67,6 +68,9 @@ const Main = () => {
 
         <Route exact path="/dashboard">
           <Dashboard />
+        </Route>
+        <Route exact path="/add-address">
+          <AddAddress />
         </Route>
         <Route exact path="/approval">
           <Approval />
