@@ -14,11 +14,11 @@ export const APPROVAL_STATE = {
 };
 
 export enum CHAINS_ENUM {
-  ETH = 'ETH',
-  BSC = 'BSC',
-  DAI = 'DAI',
-  HECO = 'HECO',
-  POLYGON = 'POLYGON',
+  ETH,
+  BSC,
+  DAI,
+  HECO,
+  POLYGON,
 }
 
 export const CHAINS = {

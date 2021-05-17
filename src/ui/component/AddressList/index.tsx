@@ -54,9 +54,7 @@ const AddressList = ({
         <p className="subtitle">{KEYRING_TYPE[name]}</p>
         <ul className="addresses">
           {group.map(({ accounts }) =>
-            accounts.map((account) => (
-              <AddressItem key={account} account={account} />
-            ))
+            accounts.map((account) => <AddressItem account={account} />)
           )}
         </ul>
       </li>

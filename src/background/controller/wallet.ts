@@ -7,13 +7,11 @@ import {
   notification,
   permission,
   session,
-  chainService,
 } from 'background/service';
 import { openIndexPage } from 'background/webapi/tab';
 import { KEYRING_CLASS, DisplayedKeryring } from 'background/service/keyring';
 import { addHexPrefix } from 'background/utils';
 import BaseController from './base';
-import { CHAINS_ENUM } from 'consts';
 
 export class WalletController extends BaseController {
   boot = (password) => keyringService.boot(password);
@@ -30,10 +28,6 @@ export class WalletController extends BaseController {
     session.broadcastEvent('disconnect');
   };
 
-  getEnableChains = () => chainService.getEnabledChains();
-  enableChain = (id: CHAINS_ENUM) => chainService.enableChain(id);
-  disableChain = (id: CHAINS_ENUM) => chainService.disableChain(id);
-
   getConnectedSites = permission.getConnectedSites;
   getRecentConnectedSites = permission.getRecentConnectSites;
   getCurrentConnectedSite = (tabId: number) => {
@@ -42,6 +36,8 @@ export class WalletController extends BaseController {
   };
   updateConnectSite = permission.updateConnectSite;
   removeConnectedSite = permission.removeConnectedSite;
+
+  generateMnemonic = () => keyringService.generateMnemonic();
 
   getCurrentMnemonics = async () => {
     const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
@@ -63,7 +59,7 @@ export class WalletController extends BaseController {
     }
 
     const privateKey = ethUtil.stripHexPrefix(prefixed);
-    return keyringService.createNewVaultWithPrivateKey(privateKey);
+    return keyringService.importPrivateKey(privateKey);
   };
 
   // json format is from "https://github.com/SilentCicero/ethereumjs-accounts"
@@ -78,33 +74,28 @@ export class WalletController extends BaseController {
     }
 
     const privateKey = wallet.getPrivateKeyString();
-    return keyringService.createNewVaultWithPrivateKey(
-      ethUtil.stripHexPrefix(privateKey)
-    );
+    return keyringService.importPrivateKey(ethUtil.stripHexPrefix(privateKey));
   };
 
-  importMnemonics = (seed) => keyringService.createNewVaultWithMnemonic(seed);
+  importMnemonics = async (seed) => {
+    const account = await keyringService.importMnemonics(seed);
+    preference.setCurrentAccount(account);
+  };
 
   getAllClassAccounts: () => Promise<
     Record<string, DisplayedKeryring[]>
   > = async () => {
     const typedAccounts = await keyringService.getAllTypedAccounts();
     const result: Record<string, DisplayedKeryring[]> = {};
-    const hardwareAccounts: DisplayedKeryring[] = [];
-
     const hardwareTypes = Object.values(KEYRING_CLASS.HARDWARE);
 
     for (const account of typedAccounts) {
-      if (hardwareTypes.includes(account.type)) {
-        hardwareAccounts.push(account);
-      } else {
-        result[account.type] = [account];
-      }
-    }
+      const type = hardwareTypes.includes(account.type)
+        ? 'hardware'
+        : account.type;
 
-    if (hardwareAccounts.length) {
-      // may has many type
-      result.hardware = hardwareTypes;
+      result[type] = result[type] || [];
+      result[type].push(account);
     }
 
     return result;

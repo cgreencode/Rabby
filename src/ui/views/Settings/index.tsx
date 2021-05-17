@@ -21,7 +21,6 @@ const Settings = () => {
     {
       leftIcon: IconChainManagement,
       content: 'Chain management',
-      onClick: () => history.push('/settings/chain'),
     },
     {
       leftIcon: IconConnectSitesManagement,

@@ -6,12 +6,11 @@ interface ChainStore {
   enableChains: CHAINS_ENUM[];
 }
 
-export interface Chain {
+interface Chain {
   id: number;
   name: string;
   hex: string;
   logo: string;
-  enum: CHAINS_ENUM;
 }
 
 class ChainService {
@@ -21,9 +20,6 @@ class ChainService {
   init = async () => {
     this.store = await createPersistStore<ChainStore>({
       name: 'chains',
-      template: {
-        enableChains: [CHAINS_ENUM.ETH],
-      },
     });
     // this.supportChainIds = await http('get_support_id');
   };
