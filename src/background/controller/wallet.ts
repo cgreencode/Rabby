@@ -123,10 +123,13 @@ export class WalletController extends BaseController {
     return seedWords;
   };
 
-  deriveNewAccount = () => {
+  deriveNewAccount = async () => {
     const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
 
-    return keyringService.addNewAccount(keyring);
+    const accounts = await keyringService.addNewAccount(keyring);
+    preference.setCurrentAccount(accounts[0]);
+
+    return accounts;
   };
 
   getTypedAccounts = async (type) => {
