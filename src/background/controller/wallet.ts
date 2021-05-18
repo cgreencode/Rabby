@@ -20,6 +20,8 @@ export class WalletController extends BaseController {
   /* wallet */
   boot = (password) => keyringService.boot(password);
   isBooted = () => keyringService.isBooted();
+  verifyPassword = (password: string) =>
+    keyringService.verifyPassword(password);
 
   getApproval = notification.getApproval;
   resolveApproval = notification.resolveApproval;
@@ -93,6 +95,12 @@ export class WalletController extends BaseController {
     preference.setCurrentAccount(account);
   };
 
+  getHiddenAddresses = () => preference.getHiddenAddresses();
+  showAddress = (type: string, address: string) =>
+    preference.showAddress(type, address);
+  hideAddress = (type: string, address: string) =>
+    preference.hideAddress(type, address);
+
   generateKeyringWithMnemonic = (mnemonic) => {
     if (!bip39.validateMnemonic(mnemonic)) {
       throw new Error('mnemonic phrase is invalid.');
@@ -115,13 +123,10 @@ export class WalletController extends BaseController {
     return seedWords;
   };
 
-  deriveNewAccount = async () => {
+  deriveNewAccount = () => {
     const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
 
-    const accounts = await keyringService.addNewAccount(keyring);
-    preference.setCurrentAccount(accounts[0]);
-
-    return accounts;
+    return keyringService.addNewAccount(keyring);
   };
 
   getTypedAccounts = async (type) => {

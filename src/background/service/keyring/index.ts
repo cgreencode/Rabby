@@ -43,6 +43,7 @@ interface MemStoreState {
 export interface DisplayedKeryring {
   type: string;
   accounts: string[];
+  keyring: any;
 }
 
 class KeyringService extends EventEmitter {
@@ -145,7 +146,7 @@ class KeyringService extends EventEmitter {
       .then(() => {
         return this.addNewKeyring('HD Key Tree', {
           mnemonic: seed,
-          walletIndexes: [0],
+          numberOfAccounts: 1,
         });
       })
       .then((firstKeyring) => {
@@ -334,20 +335,17 @@ class KeyringService extends EventEmitter {
    * @param {Keyring} selectedKeyring - The currently selected keyring.
    * @returns {Promise<Object>} A Promise that resolves to the state.
    */
-  addNewAccount(selectedKeyring: any): Promise<string[]> {
-    let _accounts;
+  addNewAccount(selectedKeyring: any): Promise<MemStoreState> {
     return selectedKeyring
       .addAccounts(1)
       .then((accounts) => {
         accounts.forEach((hexAccount) => {
           this.emit('newAccount', hexAccount);
         });
-        _accounts = accounts;
       })
       .then(this.persistAllKeyrings.bind(this))
       .then(this._updateMemStoreKeyrings.bind(this))
-      .then(this.fullUpdate.bind(this))
-      .then(() => _accounts);
+      .then(this.fullUpdate.bind(this));
   }
 
   /**
@@ -556,7 +554,7 @@ class KeyringService extends EventEmitter {
    */
   createFirstKeyTree() {
     this.clearKeyrings();
-    return this.addNewKeyring('HD Key Tree', { walletIndexes: [0] })
+    return this.addNewKeyring('HD Key Tree', { numberOfAccounts: 1 })
       .then((keyring) => {
         return keyring.getAccounts();
       })
@@ -762,6 +760,7 @@ class KeyringService extends EventEmitter {
       return {
         type: keyring.type,
         accounts: accounts.map(normalizeAddress),
+        keyring,
       };
     });
   }
