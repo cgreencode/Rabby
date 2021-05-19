@@ -6,7 +6,6 @@ import { message, Modal } from 'antd';
 import { AddressViewer, AddressList } from 'ui/component';
 import { useWallet, getCurrentTab } from 'ui/utils';
 import { DisplayedKeryring } from 'background/service/keyring';
-import { Account } from 'background/service/preference';
 import RecentConnections from './components/RecentConnections';
 import IconSetting from 'ui/assets/settings.svg';
 import IconCopy from 'ui/assets/copy.svg';
@@ -24,7 +23,7 @@ const SwitchAddress = ({
   onChange,
   currentAccount,
 }: {
-  onChange(account: string, type: string): void;
+  onChange(account: string): void;
   currentAccount: string;
 }) => {
   const wallet = useWallet();
@@ -33,12 +32,18 @@ const SwitchAddress = ({
   );
 
   const getAllKeyrings = async () => {
-    const _accounts = await wallet.getAllVisibleAccounts();
+    const _accounts = await wallet.getAllClassAccounts();
+    console.log(_accounts);
     setAccounts(_accounts);
   };
 
-  const changeAccount = (account: string, keyring: any) => {
-    onChange && onChange(account, keyring.type);
+  const handleCreate = async () => {
+    await wallet.deriveNewAccount();
+    getAllKeyrings();
+  };
+
+  const changeAccount = (account: string) => {
+    onChange && onChange(account);
   };
 
   useEffect(() => {
@@ -71,7 +76,7 @@ const SwitchAddress = ({
 const Dashboard = () => {
   const history = useHistory();
   const wallet = useWallet();
-  const [currentAccount, setCurrentAccount] = useState<Account | null>(null);
+  const [currentAccount, setCurrentAccount] = useState('');
 
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -81,7 +86,6 @@ const Dashboard = () => {
 
   const getCurrentAccount = async () => {
     const account = await wallet.getCurrentAccount();
-    console.log('current', account);
     setCurrentAccount(account);
   };
 
@@ -93,17 +97,17 @@ const Dashboard = () => {
     history.push('/settings');
   };
 
-  const handleChange = async (account: string, type: string) => {
+  const handleChange = async (account) => {
     const { id: tabId } = await getCurrentTab();
-    await wallet.changeAccount({ address: account, type }, tabId);
-    setCurrentAccount({ address: account, type });
+    await wallet.changeAccount(account, tabId);
+    setCurrentAccount(account);
     handleToggle();
   };
 
   const handleCopyCurrentAddress = () => {
     const clipboard = new ClipboardJS('.main', {
       text: function () {
-        return currentAccount!.address;
+        return currentAccount;
       },
     });
 
@@ -125,12 +129,7 @@ const Dashboard = () => {
       <div className="dashboard">
         <div className="main">
           <div className="flex header items-center">
-            {currentAccount && (
-              <AddressViewer
-                address={currentAccount.address}
-                onClick={handleToggle}
-              />
-            )}
+            <AddressViewer address={currentAccount} onClick={handleToggle} />
             <img
               className="icon icon-copy"
               src={IconCopy}
@@ -183,12 +182,10 @@ const Dashboard = () => {
         width="344px"
         onCancel={handleToggle}
       >
-        {currentAccount && (
-          <SwitchAddress
-            currentAccount={currentAccount!.address}
-            onChange={handleChange}
-          />
-        )}
+        <SwitchAddress
+          currentAccount={currentAccount}
+          onChange={handleChange}
+        />
       </Modal>
     </>
   );

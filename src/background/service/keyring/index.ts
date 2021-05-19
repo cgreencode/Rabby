@@ -13,7 +13,6 @@ import HdKeyring from './eth-hd-keyring';
 import TrezorKeyring from './eth-trezor-keyring';
 import OnekeyKeyring from './eth-onekey-keyring';
 import WatchKeyring from './eth-watch-keyring';
-import preference from '../preference';
 
 export const KEYRING_SDK_TYPES = {
   SimpleKeyring,
@@ -759,50 +758,18 @@ class KeyringService extends EventEmitter {
    * @param {Keyring} keyring
    * @returns {Promise<Object>} A keyring display object, with type and accounts properties.
    */
-  displayForKeyring(keyring, includeHidden = true): Promise<DisplayedKeryring> {
-    const hiddenAddresses = preference.getHiddenAddresses();
+  displayForKeyring(keyring): Promise<DisplayedKeryring> {
     return keyring.getAccounts().then((accounts) => {
       return {
         type: keyring.type,
-        accounts: includeHidden
-          ? accounts.map(normalizeAddress)
-          : accounts.filter(
-              (account) =>
-                !hiddenAddresses.find(
-                  (item) =>
-                    item.type === keyring.type && item.address === account
-                )
-            ),
+        accounts: accounts.map(normalizeAddress),
         keyring,
       };
     });
   }
 
   getAllTypedAccounts(): Promise<DisplayedKeryring[]> {
-    return Promise.all(
-      this.keyrings.map((keyring) => this.displayForKeyring(keyring))
-    );
-  }
-
-  getAllTypedVisibleAccounts(): Promise<DisplayedKeryring[]> {
-    return Promise.all(
-      this.keyrings.map((keyring) => this.displayForKeyring(keyring, false))
-    );
-  }
-
-  async getAllVisibleAccountsArray() {
-    const typedAccounts = await this.getAllTypedVisibleAccounts();
-    const result: { address: string; type: string }[] = [];
-    typedAccounts.forEach((accountGroup) => {
-      result.push(
-        ...accountGroup.accounts.map((account) => ({
-          address: account,
-          type: accountGroup.type,
-        }))
-      );
-    });
-
-    return result;
+    return Promise.all(this.keyrings.map(this.displayForKeyring));
   }
 
   /**
@@ -827,7 +794,7 @@ class KeyringService extends EventEmitter {
    */
   async _updateMemStoreKeyrings(): Promise<void> {
     const keyrings = await Promise.all(
-      this.keyrings.map((keyring) => this.displayForKeyring(keyring))
+      this.keyrings.map(this.displayForKeyring)
     );
     return this.memStore.updateState({ keyrings });
   }
