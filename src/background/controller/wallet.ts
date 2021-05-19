@@ -9,12 +9,14 @@ import {
   permission,
   session,
   chainService,
+  openapi,
 } from 'background/service';
 import { openIndexPage } from 'background/webapi/tab';
 import { KEYRING_CLASS, DisplayedKeryring } from 'background/service/keyring';
 import { addHexPrefix } from 'background/utils';
 import BaseController from './base';
 import { CHAINS_ENUM } from 'consts';
+import { Account } from '../service/preference';
 
 export class WalletController extends BaseController {
   /* wallet */
@@ -70,7 +72,7 @@ export class WalletController extends BaseController {
     const privateKey = ethUtil.stripHexPrefix(prefixed);
     const keyring = await keyringService.importPrivateKey(privateKey);
     const [account] = await keyring.getAccounts();
-    preference.setCurrentAccount(account);
+    preference.setCurrentAccount({ address: account, type: keyring.type });
   };
 
   // json format is from "https://github.com/SilentCicero/ethereumjs-accounts"
@@ -92,7 +94,7 @@ export class WalletController extends BaseController {
   importMnemonics = async (mnemonic) => {
     const keyring = await keyringService.importMnemonics(mnemonic);
     const [account] = await keyring.getAccounts();
-    preference.setCurrentAccount(account);
+    preference.setCurrentAccount({ address: account, type: keyring.type });
   };
 
   getHiddenAddresses = () => preference.getHiddenAddresses();
@@ -127,9 +129,15 @@ export class WalletController extends BaseController {
     const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
 
     const accounts = await keyringService.addNewAccount(keyring);
-    preference.setCurrentAccount(accounts[0]);
+    preference.setCurrentAccount({ address: accounts[0], type: keyring.type });
 
     return accounts;
+  };
+
+  getAccountsCount = async () => {
+    return await keyringService.keyrings.reduce(async (count, keyring) => {
+      return count + (await keyring.getAccounts()).length;
+    }, 0);
   };
 
   getTypedAccounts = async (type) => {
@@ -138,6 +146,25 @@ export class WalletController extends BaseController {
         .filter((keyring) => !type || keyring.type === type)
         .map((keyring) => keyringService.displayForKeyring(keyring))
     );
+  };
+
+  getAllVisibleAccounts: () => Promise<
+    Record<string, DisplayedKeryring[]>
+  > = async () => {
+    const typedAccounts = await keyringService.getAllTypedVisibleAccounts();
+    const result: Record<string, DisplayedKeryring[]> = {};
+    const hardwareTypes = Object.values(KEYRING_CLASS.HARDWARE);
+
+    for (const account of typedAccounts) {
+      const type = hardwareTypes.includes(account.type)
+        ? 'hardware'
+        : account.type;
+
+      result[type] = result[type] || [];
+      result[type].push(account);
+    }
+
+    return result;
   };
 
   getAllClassAccounts: () => Promise<
@@ -159,7 +186,7 @@ export class WalletController extends BaseController {
     return result;
   };
 
-  changeAccount = (account, tabId) => {
+  changeAccount = (account: Account, tabId: number | undefined) => {
     preference.setCurrentAccount(account);
 
     const currentSession = session.getOrCreateSession(tabId);
@@ -175,15 +202,19 @@ export class WalletController extends BaseController {
 
   connectHardware = async (type) => {
     let keyring;
-    const keyringType = KEYRING_CLASS.HARDWARE[type];
     try {
-      keyring = this._getKeyringByType(keyringType);
+      keyring = this._getKeyringByType(KEYRING_CLASS.HARDWARE[type]);
     } catch {
-      const Keyring = keyringService.getKeyringClassForType(keyringType);
-      keyring = new Keyring();
+      keyring = await keyringService.addNewKeyring(
+        KEYRING_CLASS.HARDWARE[type]
+      );
     }
 
-    return keyring;
+    return {
+      getFirstPage: keyring.getFirstPage.bind(keyring),
+      getNextPage: keyring.getNextPage.bind(keyring),
+      getPreviousPage: keyring.getPreviousPage.bind(keyring),
+    };
   };
 
   unlockHardwareAccount = async (type, indexes) => {
@@ -195,7 +226,7 @@ export class WalletController extends BaseController {
     }
 
     const account = keyring.accounts[keyring.accounts.length - 1];
-    preference.setCurrentAccount(account);
+    preference.setCurrentAccount({ address: account, type: keyring.type });
     session.broadcastEvent('accountsChanged', account);
   };
 
@@ -208,6 +239,8 @@ export class WalletController extends BaseController {
 
     throw ethErrors.rpc.internal(`No ${type} keyring found`);
   }
+
+  openapi = openapi;
 }
 
 export default new WalletController();

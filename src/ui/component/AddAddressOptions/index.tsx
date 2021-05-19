@@ -42,9 +42,7 @@ const AddAddressOptions = () => {
     {
       leftIcon: IconConnectHardware,
       content: 'Connect a hardware wallet',
-      onClick: () => {
-        wallet.openIndexPage('/import/hardware');
-      },
+      onClick: () => history.push('/import/hardware'),
     },
     {
       leftIcon: IconWatchAddress,
