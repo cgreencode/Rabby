@@ -9,7 +9,6 @@ import {
   permission,
   session,
   chainService,
-  openapi,
 } from 'background/service';
 import { openIndexPage } from 'background/webapi/tab';
 import { KEYRING_CLASS, DisplayedKeryring } from 'background/service/keyring';
@@ -200,26 +199,23 @@ export class WalletController extends BaseController {
     }
   };
 
-  connectHardware = async (type) => {
+  connectHardware = async (type, hdPath) => {
     let keyring;
+    const keyringType = KEYRING_CLASS.HARDWARE[type];
     try {
-      keyring = this._getKeyringByType(KEYRING_CLASS.HARDWARE[type]);
+      keyring = this._getKeyringByType(keyringType);
     } catch {
-      keyring = await keyringService.addNewKeyring(
-        KEYRING_CLASS.HARDWARE[type]
-      );
+      keyring = await keyringService.addNewKeyring(keyringType);
     }
 
-    return {
-      getFirstPage: keyring.getFirstPage.bind(keyring),
-      getNextPage: keyring.getNextPage.bind(keyring),
-      getPreviousPage: keyring.getPreviousPage.bind(keyring),
-    };
+    if (hdPath && keyring.setHdPath) {
+      keyring.setHdPath(hdPath);
+    }
+
+    return keyring;
   };
 
-  unlockHardwareAccount = async (type, indexes) => {
-    const keyring = this._getKeyringByType(KEYRING_CLASS.HARDWARE[type]);
-
+  unlockHardwareAccount = async (keyring, indexes) => {
     for (let i = 0; i < indexes.length; i++) {
       keyring.setAccountToUnlock(indexes[i]);
       await keyringService.addNewAccount(keyring);
@@ -239,8 +235,6 @@ export class WalletController extends BaseController {
 
     throw ethErrors.rpc.internal(`No ${type} keyring found`);
   }
-
-  openapi = openapi;
 }
 
 export default new WalletController();

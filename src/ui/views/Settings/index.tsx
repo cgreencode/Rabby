@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { Modal, Form, Input, Button } from 'antd';
 import { useWallet } from 'ui/utils';
 import { PageHeader, Field } from 'ui/component';
 import IconAddressManagement from 'ui/assets/address-management.svg';
@@ -10,60 +9,9 @@ import IconOpenapiManagement from 'ui/assets/openapi-management.svg';
 import IconArrowRight from 'ui/assets/arrow-right-gray.svg';
 import './style.less';
 
-const OpenApiModal = ({
-  visible,
-  onFinish,
-  onCancel,
-}: {
-  visible: boolean;
-  onFinish(): void;
-  onCancel(): void;
-}) => {
-  const { useForm } = Form;
-  const [form] = useForm<{ host: string }>();
-  const wallet = useWallet();
-  form.setFieldsValue({
-    host: wallet.openapi.getHost(),
-  });
-  const handleSubmit = async ({ host }: { host: string }) => {
-    await wallet.openapi.setHost(host);
-    onFinish();
-  };
-
-  return (
-    <Modal title="OpenApi" footer={null} visible={visible} onCancel={onCancel}>
-      <Form onFinish={handleSubmit} form={form}>
-        <Form.Item
-          name="host"
-          rules={[
-            { required: true, message: 'Please input openapi host' },
-            {
-              pattern: /^((https|http)?:\/\/)[^\s]+/,
-              message: 'Please check your host',
-            },
-          ]}
-        >
-          <Input placeholder="Host" />
-        </Form.Item>
-        <div className="flex justify-center">
-          <Button
-            type="primary"
-            size="large"
-            htmlType="submit"
-            className="w-[200px]"
-          >
-            Confirm
-          </Button>
-        </div>
-      </Form>
-    </Modal>
-  );
-};
-
 const Settings = () => {
   const wallet = useWallet();
   const history = useHistory();
-  const [showOpenApiModal, setShowOpenApiModal] = useState(false);
   const renderData = [
     {
       leftIcon: IconAddressManagement,
@@ -83,7 +31,6 @@ const Settings = () => {
     {
       leftIcon: IconOpenapiManagement,
       content: 'Change OpenAPI',
-      onClick: () => setShowOpenApiModal(true),
     },
   ];
 
@@ -110,11 +57,6 @@ const Settings = () => {
           {data.content}
         </Field>
       ))}
-      <OpenApiModal
-        visible={showOpenApiModal}
-        onFinish={() => setShowOpenApiModal(false)}
-        onCancel={() => setShowOpenApiModal(false)}
-      />
     </div>
   );
 };

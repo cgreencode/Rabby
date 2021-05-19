@@ -10,7 +10,6 @@ import {
   session,
   keyringService,
   chainService,
-  openapi,
 } from './service';
 import { providerController, walletController } from './controller';
 
@@ -23,7 +22,6 @@ async function restoreAppState() {
   await permission.init();
   await preference.init();
   await chainService.init();
-  await openapi.init();
 
   keyringService.loadStore(keyringState);
   keyringService.store.subscribe((value) => storage.set('keyringState', value));

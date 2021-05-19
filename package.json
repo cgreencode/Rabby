@@ -20,7 +20,6 @@
     "@types/react-router-dom": "^5.1.7",
     "antd": "^4.15.3",
     "assert": "^2.0.0",
-    "axios": "^0.21.1",
     "bip39": "^3.0.3",
     "browser-passworder": "^2.0.3",
     "buffer": "^6.0.3",
