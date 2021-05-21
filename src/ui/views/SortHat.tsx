@@ -2,7 +2,6 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import { useWallet, getUiType, useApproval } from 'ui/utils';
-import { Account } from 'background/service/preference';
 
 const SortHat = () => {
   const wallet = useWallet();
@@ -14,10 +13,7 @@ const SortHat = () => {
     const isInNotification = getUiType().isNotification;
     const isBooted = wallet.isBooted();
     const isUnlocked = wallet.isUnlocked();
-    let currentAccount: Account | null = null;
-    if (isUnlocked) {
-      currentAccount = await wallet.getCurrentAccount();
-    }
+    const currentAccount = await wallet.getCurrentAccount();
 
     if (!isInNotification) {
       // chrome.window.windowFocusChange won't fire when
