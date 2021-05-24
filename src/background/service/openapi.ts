@@ -12,7 +12,7 @@ interface OpenApiStore {
   config: Record<string, OpenApiConfigValue>;
 }
 
-interface ServerChain {
+export interface ServerChain {
   id: string;
   community_id: number;
   name: string;
@@ -111,7 +111,11 @@ class OpenApi {
     this.request = axios.create({
       baseURL: this.store.host,
     });
-    await this.getConfig();
+    try {
+      await this.getConfig();
+    } catch (e) {
+      console.error('[rabby] openapi init error', e);
+    }
   };
 
   getConfig = async () => {
@@ -126,11 +130,23 @@ class OpenApi {
     this.store.config = data;
   };
 
-  getSupportedChains = async () => {
+  getSupportedChains = async (): Promise<ServerChain[]> => {
     const config = this.store.config.get_supported_chains;
-    const { data } = await this.request[config.method]<ServerChain[]>(
-      config.path
-    );
+    const { data } = await this.request[config.method](config.path);
+    return data;
+  };
+
+  getRecommendChains = async (
+    address: string,
+    origin: string
+  ): Promise<ServerChain[]> => {
+    const config = this.store.config.recommend_chains;
+    const { data } = await this.request[config.method](config.path, {
+      params: {
+        user_addr: address,
+        origin,
+      },
+    });
     return data;
   };
 }
