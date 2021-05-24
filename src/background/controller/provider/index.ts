@@ -17,5 +17,5 @@ export default (req) => {
     return Promise.resolve(internalMethod[method](req));
   }
 
-  return rpcFlow(req);
+  return new rpcFlow().handle(req);
 };

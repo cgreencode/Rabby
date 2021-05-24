@@ -30,4 +30,3 @@ const retrieveValuePath = (obj) => {
 };
 
 export { retrieveValuePath };
-export { default as PromiseFlow } from './promiseFlow';

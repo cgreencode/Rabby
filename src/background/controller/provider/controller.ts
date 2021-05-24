@@ -1,12 +1,12 @@
 import { Transaction } from '@ethereumjs/tx';
-import { keyringService, permission, chainService } from 'background/service';
+import { keyringService, permission } from 'background/service';
 import { Session } from 'background/service/session';
-import { CHAINS, CHAINS_ENUM } from 'consts';
+import { CHAINS } from 'consts';
 import { http } from 'background/utils';
 import BaseController from '../base';
 
 class ProviderController extends BaseController {
-  @Reflect.metadata('APPROVAL', ['SignTx'])
+  @Reflect.metadata('APPROVAL', 'SignTx')
   ethSendTransaction = async ({
     data: {
       params: [txParams],
@@ -20,7 +20,7 @@ class ProviderController extends BaseController {
     return http('serializedTx', serializedTx);
   };
 
-  @Reflect.metadata('APPROVAL', ['SignText'])
+  @Reflect.metadata('APPROVAL', 'SignText')
   personalSign = ({
     data: {
       params: [data, from],
@@ -32,6 +32,7 @@ class ProviderController extends BaseController {
       return [];
     }
     const account = await this.getCurrentAccount();
+    if (!account) return null;
     return [account.address];
   };
 
@@ -45,32 +46,13 @@ class ProviderController extends BaseController {
 
   ethRequestAccounts = this.ethAccounts;
 
-  @Reflect.metadata('APPROVAL', [
-    'AddChain',
-    ({
-      data: {
-        params: [chainParams],
-      },
-    }) => {
-      return Object.values(CHAINS).some(
-        (chain) => chain.hex === chainParams.chainId
-      );
-    },
-  ])
+  @Reflect.metadata('APPROVAL', 'AddChain')
   walletAddEthereumChain = ({
     data: {
-      params: [chainParams],
+      params: [chain],
     },
   }) => {
-    const chain = Object.values(CHAINS).find(
-      (value) => value.hex === chainParams.chainId
-    );
-
-    if (!chain) {
-      throw new Error('This chain is not supported by Rabby yet.');
-    }
-
-    return chainService.enableChain(chain.enum);
+    console.log(chain);
   };
 }
 
