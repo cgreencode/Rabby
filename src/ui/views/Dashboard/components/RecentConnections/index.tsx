@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { Tooltip } from 'antd';
 import { useWallet, useApproval, getCurrentConnectSite } from 'ui/utils';
 import { ConnectedSite } from 'background/service/permission';
 import { ChainSelector } from 'ui/component';
@@ -62,14 +62,15 @@ const ConnectionItem = ({
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'inherit' }}
     >
-      <img src={item.icon} alt={item.name} className="logo" />
+      <Tooltip title={item.name} placement="topLeft">
+        <img src={item.icon} className="logo" />
+      </Tooltip>
       <p className="name">{item.name}</p>
     </div>
   );
 };
 
 export default () => {
-  const history = useHistory();
   const [connections, setConnections] = useState<ConnectedSite[]>([]);
   const [currentConnect, setCurrentConnect] = useState<
     ConnectedSite | null | undefined
@@ -78,7 +79,7 @@ export default () => {
   const [approval] = useApproval();
 
   const handleClickAllSites = () => {
-    history.push('/settings/sites');
+    // TODO
   };
 
   const getCurrentSite = async () => {
