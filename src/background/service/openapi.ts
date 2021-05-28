@@ -259,7 +259,7 @@ class OpenApiService implements OpenApiService {
 
       const [, ...rest] = config.params || [];
       this[underline2Camelcase(method)] = (chainId, params) => {
-        const data = {
+        const reqData = {
           chain_id: chainId,
           ...rest.reduce((m, n, i) => {
             m[n] = params[i];
@@ -268,9 +268,13 @@ class OpenApiService implements OpenApiService {
           }, {}),
         };
 
-        const _config = config.method === 'get' ? { params: data } : { data };
+        if (config.method === 'post') {
+          console.log(params);
+        }
 
-        this.request[config.method](config.path, _config).then(
+        const _config = config.method === 'get' ? { params: reqData } : reqData;
+
+        return this.request[config.method](config.path, _config).then(
           ({ data }) => data?.result
         );
       };
@@ -384,23 +388,6 @@ class OpenApiService implements OpenApiService {
         user_addr: address,
         origin,
         update_nonce,
-      },
-    });
-
-    return data;
-  };
-
-  explainText = async (
-    origin: string,
-    address: string,
-    text: string
-  ): Promise<{ comment: string }> => {
-    const config = this.store.config.explain_text;
-    const { data } = await this.request[config.method](config.path, {
-      params: {
-        user_addr: address,
-        origin,
-        text,
       },
     });
 

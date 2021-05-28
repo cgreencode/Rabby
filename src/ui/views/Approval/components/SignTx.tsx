@@ -32,7 +32,6 @@ const SignTx = ({ params, origin }) => {
     securityCheckDetail,
     setSecurityCheckDetail,
   ] = useState<SecurityCheckResponse | null>(null);
-  const [preprocessSuccess, setPreprocessSuccess] = useState(true);
   const [, resolveApproval, rejectApproval] = useApproval();
   const wallet = useWallet();
   const session = params.session;
@@ -63,21 +62,13 @@ const SignTx = ({ params, origin }) => {
   const explainTx = async (address: string) => {
     const res = await wallet.openapi.explainTx(tx, origin, address);
     setTxDetail(res);
-    setPreprocessSuccess(res.pre_exec.success);
-    if (!res.pre_exec.success) {
-      setShowSecurityCheckDetail(true);
-    }
     setIsReady(true);
   };
 
   const init = async () => {
     const currentAccount = await wallet.getCurrentAccount();
-    try {
-      await explainTx(currentAccount!.address);
-      await checkTx(currentAccount!.address);
-    } catch (e) {
-      // NOTHING
-    }
+    await checkTx(currentAccount!.address);
+    await explainTx(currentAccount!.address);
   };
 
   const handleAllow = () => {
@@ -121,35 +112,28 @@ const SignTx = ({ params, origin }) => {
                 <span>{CHAINS[site!.chain].name}</span>
               </div>
             </div>
-            {txDetail.pre_exec.success &&
-              txDetail.pre_exec.tx_type === TX_TYPE_ENUM.APPROVE && (
-                <Approve data={txDetail} />
-              )}
-            {txDetail.pre_exec.success &&
-              txDetail.pre_exec.tx_type === TX_TYPE_ENUM.CANCEL_APPROVE && (
-                <Cancel data={txDetail} />
-              )}
-            {txDetail.pre_exec.success &&
-              txDetail.pre_exec.tx_type === TX_TYPE_ENUM.SIGN_TX && (
-                <Sign data={txDetail} />
-              )}
-            {txDetail.pre_exec.success &&
-              txDetail.pre_exec.tx_type === TX_TYPE_ENUM.CANCEL_TX && (
-                <CancelTx />
-              )}
-            {txDetail.pre_exec.success &&
-              txDetail.pre_exec.tx_type === TX_TYPE_ENUM.SEND && (
-                <Send data={txDetail} />
-              )}
+            {txDetail.pre_exec.tx_type === TX_TYPE_ENUM.APPROVE && (
+              <Approve data={txDetail} />
+            )}
+            {txDetail.pre_exec.tx_type === TX_TYPE_ENUM.CANCEL_APPROVE && (
+              <Cancel data={txDetail} />
+            )}
+            {txDetail.pre_exec.tx_type === TX_TYPE_ENUM.SIGN_TX && (
+              <Sign data={txDetail} />
+            )}
+            {txDetail.pre_exec.tx_type === TX_TYPE_ENUM.CANCEL_TX && (
+              <CancelTx />
+            )}
+            {txDetail.pre_exec.tx_type === TX_TYPE_ENUM.SEND && (
+              <Send data={txDetail} />
+            )}
             <footer className="connect-footer">
-              {txDetail.pre_exec.success && (
-                <GasSelector
-                  tx={txDetail.tx}
-                  gas={txDetail.gas}
-                  nativeToken={txDetail.native_token}
-                  onChange={handleGasChange}
-                />
-              )}
+              <GasSelector
+                tx={txDetail.tx}
+                gas={txDetail.gas}
+                nativeToken={txDetail.native_token}
+                onChange={handleGasChange}
+              />
               <SecurityCheckBar
                 status={securityCheckStatus}
                 alert={securityCheckAlert}
@@ -173,17 +157,16 @@ const SignTx = ({ params, origin }) => {
                 </Button>
               </div>
             </footer>
+            {securityCheckDetail && (
+              <SecurityCheckDetail
+                visible={showSecurityCheckDetail}
+                onCancel={() => setShowSecurityCheckDetail(false)}
+                data={securityCheckDetail}
+                onOk={handleAllow}
+                okText="Connect"
+              />
+            )}
           </>
-        )}
-        {securityCheckDetail && (
-          <SecurityCheckDetail
-            visible={showSecurityCheckDetail}
-            onCancel={() => setShowSecurityCheckDetail(false)}
-            data={securityCheckDetail}
-            onOk={handleAllow}
-            okText="Sign"
-            preprocessSuccess={preprocessSuccess}
-          />
         )}
       </div>
     </Spin>
