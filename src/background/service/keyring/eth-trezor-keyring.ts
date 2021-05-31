@@ -18,7 +18,6 @@ const TREZOR_CONNECT_MANIFEST = {
 
 class TrezorKeyring extends EventEmitter {
   static type = keyringType;
-  type = keyringType;
   accounts: string[] = [];
   hdk = new HDKey();
   page = 0;
@@ -338,4 +337,5 @@ class TrezorKeyring extends EventEmitter {
   }
 }
 
+TrezorKeyring.type = keyringType;
 export default TrezorKeyring;
