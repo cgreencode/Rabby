@@ -31,7 +31,7 @@ const StrayPage = ({
       className
     )}
   >
-    <div className="sm:px-20 max-h-full overflow-auto">
+    <div className="sm:px-20">
       {header && <StrayHeader {...header} />}
       {children && (
         <div className="lg:flex lg:items-center lg:flex-col">{children}</div>
@@ -83,7 +83,7 @@ export const StrayPageWithButton = ({
         hasBack={hasBack}
         hasDivider={hasDivider}
         NextButtonText={NextButtonText}
-        className="lg:w-[500px] lg:left-2/4 lg:-translate-x-2/4 lg:transform lg:mb-[36px] z-10"
+        className="lg:w-[500px] lg:left-2/4 lg:-translate-x-2/4 lg:transform lg:mb-[36px]"
       />
     </Form>
   </StrayPage>
