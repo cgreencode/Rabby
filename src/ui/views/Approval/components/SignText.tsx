@@ -61,23 +61,15 @@ const SignText = ({ params }: { params: SignTextProps }) => {
     rejectApproval('user reject');
   };
 
-  const handleAllow = async (doubleCheck = false) => {
-    if (
-      !doubleCheck &&
-      securityCheckStatus !== 'pass' &&
-      securityCheckStatus !== 'pending'
-    ) {
-      setShowSecurityCheckDetail(true);
+  const handleAllow = async () => {
+    const currentAccount = await wallet.getCurrentAccount();
+    if (currentAccount?.type === KEYRING_CLASS.HARDWARE.LEDGER) {
+      resolveApproval({
+        uiRequestComponent: 'HardwareWaiting',
+        type: currentAccount.type,
+      });
     } else {
-      const currentAccount = await wallet.getCurrentAccount();
-      if (currentAccount?.type === KEYRING_CLASS.HARDWARE.LEDGER) {
-        resolveApproval({
-          uiRequestComponent: 'HardwareWaiting',
-          type: currentAccount.type,
-        });
-      } else {
-        resolveApproval({});
-      }
+      resolveApproval({});
     }
   };
 
@@ -134,7 +126,7 @@ const SignText = ({ params }: { params: SignTextProps }) => {
             type="primary"
             size="large"
             className="w-[172px]"
-            onClick={() => handleAllow()}
+            onClick={handleAllow}
           >
             Allow
           </Button>
@@ -145,7 +137,7 @@ const SignText = ({ params }: { params: SignTextProps }) => {
           visible={showSecurityCheckDetail}
           onCancel={() => setShowSecurityCheckDetail(false)}
           data={securityCheckDetail}
-          onOk={() => handleAllow(true)}
+          onOk={handleAllow}
           okText="Connect"
         />
       )}
