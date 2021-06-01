@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tooltip } from 'antd';
 import { useHistory } from 'react-router-dom';
-import { browser } from 'webextension-polyfill-ts';
 import { useWallet, useApproval, getCurrentConnectSite } from 'ui/utils';
 import { ConnectedSite } from 'background/service/permission';
 import { ChainSelector } from 'ui/component';
@@ -38,12 +37,8 @@ const CurrentConnection = ({
     <div className="connected flex">
       <img src={site!.icon} className="logo" />
       <div className="info">
-        <p className="origin" title={site!.origin}>
-          {site!.origin}
-        </p>
-        <p className="name" title={site!.name}>
-          {site!.name}
-        </p>
+        <p className="origin">{site!.origin}</p>
+        <p className="name">{site!.name}</p>
       </div>
       <ChainSelector value={site!.chain} onChange={handleChangeDefaultChain} />
     </div>
@@ -88,12 +83,6 @@ export default () => {
     history.push('/settings/sites');
   };
 
-  const handleClickConnection = (connection: ConnectedSite) => {
-    browser.tabs.create({
-      url: connection.origin,
-    });
-  };
-
   const getCurrentSite = async () => {
     const current = await getCurrentConnectSite(wallet);
     setCurrentConnect(current);
@@ -119,11 +108,7 @@ export default () => {
       {connections.length > 0 ? (
         <div className="list">
           {connections.map((item) => (
-            <ConnectionItem
-              item={item}
-              key={item.origin}
-              onClick={() => handleClickConnection(item)}
-            />
+            <ConnectionItem item={item} key={item.origin} />
           ))}
           {connections.length >= 5 && (
             <ConnectionItem
