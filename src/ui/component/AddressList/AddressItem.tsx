@@ -27,39 +27,35 @@ const HARDWARES = {
   [HARDWARE_KEYRING_TYPES.Onekey.type]: IconOnekey,
 };
 
-const formatChain = (item: ChainWithBalance): DisplayChainWithWhiteLogo => {
-  const chainsArray = Object.values(CHAINS);
-  const chain = chainsArray.find((chain) => chain.id === item.community_id);
-
-  return {
-    ...item,
-    logo: chain?.logo || item.logo_url,
-    whiteLogo: chain?.whiteLogo,
-  };
-};
-
-export const useCurrentBalance = (account: string | undefined) => {
+export const useCurrentBalance = (account) => {
   const wallet = useWallet();
-  const cache = wallet.getAddressCacheBalance(account);
-  const [balance, setBalance] = useState<number | null>(
-    cache ? cache.total_usd_value : null
-  );
+  const [balance, setBalance] = useState<number | null>(null);
   const [chainBalances, setChainBalances] = useState<
     DisplayChainWithWhiteLogo[]
-  >(
-    cache
-      ? cache.chain_list.filter((item) => item.usd_value > 0).map(formatChain)
-      : []
-  );
+  >([]);
 
   const getCurrentBalance = async () => {
     if (!account) return;
-    const { total_usd_value, chain_list } = await wallet.getAddressBalance(
-      account.toLowerCase()
-    );
+    const {
+      total_usd_value,
+      chain_list,
+    } = await wallet.openapi.getTotalBalance(account.toLowerCase());
     setBalance(total_usd_value);
+    const chainsArray = Object.values(CHAINS);
     setChainBalances(
-      chain_list.filter((item) => item.usd_value > 0).map(formatChain)
+      chain_list
+        .filter((item) => item.usd_value > 0)
+        .map((item) => {
+          const chain = chainsArray.find(
+            (chain) => chain.id === item.community_id
+          );
+
+          return {
+            ...item,
+            logo: chain?.logo || item.logo_url,
+            whiteLogo: chain?.whiteLogo,
+          };
+        })
     );
   };
 

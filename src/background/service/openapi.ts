@@ -67,11 +67,6 @@ export interface Tx {
   v?: string;
 }
 
-export interface TotalBalanceResponse {
-  total_usd_value: number;
-  chain_list: ChainWithBalance[];
-}
-
 interface AssertsChange {
   amount: number;
   chain: string;
@@ -311,7 +306,9 @@ class OpenApiService implements OpenApiService {
     return data;
   };
 
-  getTotalBalance = async (address: string): Promise<TotalBalanceResponse> => {
+  getTotalBalance = async (
+    address: string
+  ): Promise<{ total_usd_value: number; chain_list: ChainWithBalance[] }> => {
     const config = this.store.config.get_total_balance;
     const { data } = await this.request[config.method](config.path, {
       params: {

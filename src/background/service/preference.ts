@@ -1,6 +1,5 @@
 import { createPersistStore } from 'background/utils';
 import { keyringService } from './index';
-import { TotalBalanceResponse } from './openapi';
 
 export interface Account {
   type: string;
@@ -11,9 +10,6 @@ interface PreferenceStore {
   currentAccount: Account | undefined;
   popupOpen: boolean;
   hiddenAddresses: Account[];
-  balanceMap: {
-    [address: string]: TotalBalanceResponse;
-  };
 }
 
 class PreferenceService {
@@ -26,7 +22,6 @@ class PreferenceService {
         currentAccount: undefined,
         popupOpen: false,
         hiddenAddresses: [],
-        balanceMap: {},
       },
     });
   };
@@ -77,19 +72,6 @@ class PreferenceService {
 
   setPopupOpen = (isOpen) => {
     this.store.popupOpen = isOpen;
-  };
-
-  updateAddressBalance = (address, data: TotalBalanceResponse) => {
-    const balanceMap = this.store.balanceMap || {};
-    this.store.balanceMap = {
-      ...balanceMap,
-      [address]: data,
-    };
-  };
-
-  getAddressBalance = (address: string): TotalBalanceResponse | null => {
-    const balanceMap = this.store.balanceMap || {};
-    return balanceMap[address] || null;
   };
 }
 
