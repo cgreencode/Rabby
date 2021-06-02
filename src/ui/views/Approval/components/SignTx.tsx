@@ -98,6 +98,10 @@ const SignTx = ({ params, origin }) => {
     const currentAccount = await wallet.getCurrentAccount();
     try {
       setIsReady(false);
+      if (!tx.gasPrice) {
+        // use minimum gas as default gas if dapp not set gasPrice
+        await getDefaultGas();
+      }
       await explainTx(currentAccount!.address);
       await checkTx(currentAccount!.address);
       setIsReady(true);
@@ -129,11 +133,6 @@ const SignTx = ({ params, origin }) => {
   };
 
   useEffect(() => {
-    if (!tx.gasPrice) {
-      // use minimum gas as default gas if dapp not set gasPrice
-      getDefaultGas();
-      return;
-    }
     init();
   }, [tx]);
 

@@ -46,7 +46,7 @@ export const CHAINS: Record<string, Chain> = {
   },
   [CHAINS_ENUM.DAI]: {
     id: 100,
-    name: 'XDai',
+    name: 'XDAI',
     serverId: 'xdai',
     hex: '0x64',
     enum: CHAINS_ENUM.DAI,

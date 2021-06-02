@@ -30,10 +30,10 @@ const Sign = ({ data }: SignProps) => {
             <div className="token">
               <img
                 src={item.logo_url}
-                alt={item.symbol}
+                alt={item.optimized_symbol}
                 className="icon icon-token"
               />
-              {item.symbol}
+              {item.optimized_symbol}
             </div>
             <div className="amount">{item.amount}</div>
           </li>
