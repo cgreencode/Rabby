@@ -10,8 +10,7 @@ import IconDaiWhiteLogo from 'ui/assets/chain-logos/dai-white.svg';
 import IconEthWhiteLogo from 'ui/assets/chain-logos/eth-white.svg';
 // import IconHecoWhiteLogo from 'ui/assets/chain-logos/heco-white.svg';
 import IconPolygonWhiteLogo from 'ui/assets/chain-logos/polygon-white.svg';
-import IconFantomWhiteLogo from 'ui/assets/chain-logos/fantom-white.svg';
-import IconFantom from 'ui/assets/chain-logos/fantom.svg';
+import IconfantomWhiteLogo from 'ui/assets/chain-logos/fantom-white.svg';
 import IconOKTWhiteLogo from 'ui/assets/chain-logos/okex-white.svg';
 
 export enum CHAINS_ENUM {
@@ -47,7 +46,7 @@ export const CHAINS: Record<string, Chain> = {
   },
   [CHAINS_ENUM.DAI]: {
     id: 100,
-    name: 'xDai',
+    name: 'XDai',
     serverId: 'xdai',
     hex: '0x64',
     enum: CHAINS_ENUM.DAI,
@@ -61,8 +60,9 @@ export const CHAINS: Record<string, Chain> = {
     name: 'Fantom',
     hex: '0xfa',
     enum: CHAINS_ENUM.FTM,
-    logo: IconFantom,
-    whiteLogo: IconFantomWhiteLogo,
+    logo:
+      'https://static.debank.com/image/chain/logo_url/ftm/700fca32e0ee6811686d72b99cc67713.png',
+    whiteLogo: IconfantomWhiteLogo,
     network: 250,
   },
   [CHAINS_ENUM.POLYGON]: {

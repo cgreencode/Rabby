@@ -35,11 +35,7 @@ const Sign = ({ data }: SignProps) => {
               />
               {item.symbol}
             </div>
-            <div
-              className="amount"
-              title={`${item.amount > 0 ? '+' : ''}${item.amount}`}
-            >
-              {item.amount > 0 ? '+' : ''}
+            <div className="amount" title={item.amount + ''}>
               {item.amount}
             </div>
           </li>

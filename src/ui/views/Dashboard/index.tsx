@@ -5,10 +5,9 @@ import { browser } from 'webextension-polyfill-ts';
 import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { message, Modal } from 'antd';
-import { CHAINS } from 'consts';
 import { AddressViewer, AddressList } from 'ui/component';
 import { useCurrentBalance } from 'ui/component/AddressList/AddressItem';
-import { useWallet, getCurrentTab, getCurrentConnectSite } from 'ui/utils';
+import { useWallet, getCurrentTab } from 'ui/utils';
 import { splitNumberByStep } from 'ui/utils/number';
 import { DisplayedKeryring } from 'background/service/keyring';
 import { Account } from 'background/service/preference';
@@ -136,29 +135,6 @@ const Dashboard = () => {
     });
   };
 
-  const handleGotoSend = () => {
-    browser.tabs.create({
-      url: 'https://debank.com/send',
-    });
-  };
-
-  const handleGotoHistory = () => {
-    browser.tabs.create({
-      url: `https://debank.com/profile/${currentAccount?.address}/history`,
-    });
-  };
-
-  const handleGotoSwap = async () => {
-    const site = await getCurrentConnectSite(wallet);
-    let chain: null | string = null;
-    if (site) {
-      chain = CHAINS[site.chain].serverId;
-    }
-    browser.tabs.create({
-      url: `https://debank.com/swap${chain ? `?chain=${chain}` : ''}`,
-    });
-  };
-
   const handleCopyCurrentAddress = () => {
     const clipboard = new ClipboardJS('.main', {
       text: function () {
@@ -230,15 +206,15 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="operation flex">
-            <div className="operation-item" onClick={handleGotoSend}>
+            <div className="operation-item">
               <img className="icon icon-send" src={IconSend} />
               Send
             </div>
-            <div className="operation-item" onClick={handleGotoSwap}>
+            <div className="operation-item">
               <img className="icon icon-swap" src={IconSwap} />
               Swap
             </div>
-            <div className="operation-item" onClick={handleGotoHistory}>
+            <div className="operation-item">
               <img className="icon icon-history" src={IconHistory} />
               History
               {pendingTxCount > 0 && (

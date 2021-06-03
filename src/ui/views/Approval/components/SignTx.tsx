@@ -3,7 +3,7 @@ import { intToHex } from 'ethereumjs-util';
 import { Spin } from 'ui/component';
 import SecurityCheckBar from './SecurityCheckBar';
 import SecurityCheckDetail from './SecurityCheckDetail';
-import { Button, Modal } from 'antd';
+import { Button } from 'antd';
 import {
   ExplainTxResponse,
   GasLevel,
@@ -63,7 +63,6 @@ const SignTx = ({ params, origin }) => {
         ...tx,
         nonce: tx.nonce || '0x1',
         data: tx.data || '',
-        value: tx.value || '0x0',
       }, // set a mock nonce for check if dapp not set it
       origin,
       address
@@ -79,20 +78,11 @@ const SignTx = ({ params, origin }) => {
         ...tx,
         nonce: tx.nonce || '0x1',
         data: tx.data || '',
-        value: tx.value || '0x0',
       }, // set a mock nonce for explain if dapp not set it
       origin,
       address,
       tx.from !== tx.to
     );
-    if (!res.pre_exec.success) {
-      Modal.error({
-        title: 'Error',
-        content: 'Pre-execution not passed, please try again',
-        onOk: rejectApproval,
-      });
-      return;
-    }
     setTxDetail(res);
     setRealNonce(res.tx.nonce);
     setPreprocessSuccess(res.pre_exec.success);
