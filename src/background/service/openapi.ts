@@ -145,23 +145,12 @@ export const EVM_RPC_METHODS = [
   'eth_getTransactionReceipt',
   'eth_getBalance',
   'eth_getTransactionByHash',
-] as const;
-
-interface RPCResponse<T> {
-  result: T;
-  id: number;
-  jsonrpc: string;
-  error?: {
-    code: number;
-    message: string;
-  };
-}
+];
 
 interface OpenApiService {
   ethCall(chainId: string, params: any[]): Promise<any>;
   ethGetTransactionCount(chainId: string, params: any[]): Promise<any>;
   ethBlockNumber(chainId: string): Promise<any>;
-  ethEstimateGas(chainId: string, params: any[]): Promise<number>;
 }
 
 class OpenApiService implements OpenApiService {
@@ -278,7 +267,7 @@ class OpenApiService implements OpenApiService {
     this.store.config = data;
   };
 
-  private _mountMethods = (methods: typeof EVM_RPC_METHODS) => {
+  private _mountMethods = (methods: string[]) => {
     methods.forEach((method) => {
       const config = this.store.config[method];
 
@@ -300,7 +289,7 @@ class OpenApiService implements OpenApiService {
         const _config = config.method === 'get' ? { params: reqData } : reqData;
 
         return this.request[config.method](config.path, _config).then(
-          ({ data }: { data: RPCResponse<any> }) => data?.result
+          ({ data }) => data?.result
         );
       };
     });

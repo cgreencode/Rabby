@@ -11,7 +11,7 @@ import {
   SecurityCheckDecision,
   Tx,
 } from 'background/service/openapi';
-import { CHAINS, TX_TYPE_ENUM } from 'consts';
+import { CHAINS, TX_TYPE_ENUM, DEFAULT_GAS_LIMIT } from 'consts';
 import { useWallet, useApproval } from 'ui/utils';
 import Approve from './TxComponents/Approve';
 import Cancel from './TxComponents/Cancel';
@@ -43,7 +43,9 @@ const SignTx = ({ params, origin }) => {
   if (!chainId) {
     chainId = CHAINS[site!.chain].id;
   }
-  const [{ data, from, gas, gasPrice, nonce, to, value }] = params.data;
+  const [
+    { data, from, gas = DEFAULT_GAS_LIMIT, gasPrice, nonce, to, value },
+  ] = params.data;
   const [tx, setTx] = useState<Tx>({
     chainId,
     data,
@@ -111,19 +113,6 @@ const SignTx = ({ params, origin }) => {
     });
   };
 
-  const getGasLimit = async () => {
-    const chain = Object.keys(CHAINS)
-      .map((key) => CHAINS[key])
-      .find((item) => item.id === chainId);
-    const gasLimit = await wallet.openapi.ethEstimateGas(chain!.serverId, [
-      { ...tx, gasPrice: undefined },
-    ]);
-    setTx({
-      ...tx,
-      gas: intToHex(Math.floor(gasLimit * 1.2)),
-    });
-  };
-
   const init = async () => {
     const currentAccount = await wallet.getCurrentAccount();
     try {
@@ -174,10 +163,6 @@ const SignTx = ({ params, origin }) => {
     if (!tx.gasPrice) {
       // use minimum gas as default gas if dapp not set gasPrice
       getDefaultGas();
-      return;
-    }
-    if (!tx.gas) {
-      getGasLimit();
       return;
     }
     init();
