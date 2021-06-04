@@ -26,7 +26,8 @@ const ImportPrivateKey = () => {
   return (
     <StrayPageWithButton
       header={{
-        secondTitle: 'Enter Your  Private Key',
+        secondTitle: 'Import Private Key',
+        subTitle: 'Please input your private key below',
       }}
       onSubmit={onSubmit}
       hasBack

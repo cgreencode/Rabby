@@ -64,12 +64,7 @@ const Connect = ({ params: { icon, origin, name } }: ConnectProps) => {
     rejectApproval('user reject');
   };
 
-  const handleAllow = async (doubleCheck = false) => {
-    if (!doubleCheck && securityCheckStatus !== 'pass') {
-      setShowSecurityCheckDetail(true);
-
-      return;
-    }
+  const handleAllow = async () => {
     resolveApproval({
       defaultChain,
     });
@@ -82,7 +77,9 @@ const Connect = ({ params: { icon, origin, name } }: ConnectProps) => {
   return (
     <Spin spinning={isLoading}>
       <div className="approval-connect">
-        <div className="font-medium text-20 text-center">Website Connect</div>
+        <div className="font-medium text-20 text-center">
+          Request for connection
+        </div>
         <div className="connect-card">
           <div className="site-info">
             <img src={icon} className="site-info__icon" />
@@ -119,9 +116,9 @@ const Connect = ({ params: { icon, origin, name } }: ConnectProps) => {
             type="primary"
             size="large"
             className="w-[172px]"
-            onClick={() => handleAllow(false)}
+            onClick={handleAllow}
           >
-            {securityCheckStatus === 'pass' ? 'Connect' : 'Continue'}
+            Allow
           </Button>
         </div>
       </footer>
@@ -130,7 +127,7 @@ const Connect = ({ params: { icon, origin, name } }: ConnectProps) => {
           visible={showSecurityCheckDetail}
           onCancel={() => setShowSecurityCheckDetail(false)}
           data={securityCheckDetail}
-          onOk={() => handleAllow(true)}
+          onOk={handleAllow}
           okText="Connect"
         />
       )}

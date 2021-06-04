@@ -56,7 +56,7 @@ const ImportHardware = () => {
     <StrayPage
       header={{
         title: 'Connect Hardware Wallet',
-        subTitle: 'Select the hardware wallet you are using',
+        subTitle: "Select a hardware wallet you'd ike to use",
         center: true,
       }}
     >

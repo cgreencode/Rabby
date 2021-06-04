@@ -35,7 +35,7 @@ const AuthenticationModal = ({
       centered
       visible={visible}
       footer={null}
-      title="Enter Password"
+      title="Authentication"
       onCancel={handleCancel}
     >
       <Form onFinish={handleSubmit}>

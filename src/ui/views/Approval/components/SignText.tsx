@@ -112,7 +112,7 @@ const SignText = ({ params }: { params: SignTextProps }) => {
               {explain}
               <Tooltip
                 placement="top"
-                title="This summary information is provide by DeBank OpenAPI"
+                title="This summary is provide by DeBank"
               >
                 <img
                   src={IconQuestionMark}
@@ -145,9 +145,7 @@ const SignText = ({ params }: { params: SignTextProps }) => {
             className="w-[172px]"
             onClick={() => handleAllow()}
           >
-            {securityCheckStatus === 'pass' || securityCheckStatus === 'pending'
-              ? 'Sign'
-              : 'Continue'}
+            Allow
           </Button>
         </div>
       </footer>
@@ -157,7 +155,7 @@ const SignText = ({ params }: { params: SignTextProps }) => {
           onCancel={() => setShowSecurityCheckDetail(false)}
           data={securityCheckDetail}
           onOk={() => handleAllow(true)}
-          okText="Sign"
+          okText="Connect"
         />
       )}
     </>

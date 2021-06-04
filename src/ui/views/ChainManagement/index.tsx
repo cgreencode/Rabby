@@ -33,8 +33,8 @@ export const ChainManagementList = ({ inStart = false }) => {
         Modal.confirm({
           centered: true,
           content:
-            'After disabling a chain,  all websites connected using this chain will also be deleted',
-          okText: 'Disable',
+            'Disable this link will clear all website records associated with this link',
+          okText: 'Confirm',
           cancelText: 'Cancel',
           onOk: () => {
             const sites = wallet.getSitesByDefaultChain(chainEnum);
@@ -48,7 +48,7 @@ export const ChainManagementList = ({ inStart = false }) => {
           },
         });
       } else {
-        message.error('At least one enabled chain is required.');
+        message.error('Keep at least one chain enabled.');
       }
     }
   };
@@ -89,7 +89,7 @@ export const StartChainManagement = () => {
 
   return (
     <StrayPageWithButton
-      NextButtonText="OK"
+      NextButtonText="confirm"
       hasDivider
       onNextClick={handleNextClick}
       header={{
