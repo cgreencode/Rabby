@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Modal } from 'antd';
+import { Button } from 'antd';
 import { CHAINS } from 'consts';
 import { useWallet, useApproval } from 'ui/utils';
 
@@ -27,12 +27,19 @@ const AddChain = ({ params }: { params: AddChainProps }) => {
   const showChain = supportChains.find((chain) => chain.hex === chainId);
 
   if (!showChain) {
-    Modal.error({
-      title: 'Error',
-      content: 'The requested chain is not supported by Rabby yet.',
-      onOk: () => rejectApproval(),
-    });
-    return;
+    return (
+      <>
+        <div>The requested chain is not supported by Rabby yet.</div>
+        <Button
+          type="primary"
+          size="large"
+          className="w-[172px]"
+          onClick={rejectApproval}
+        >
+          OK
+        </Button>
+      </>
+    );
   }
 
   const enableChains = wallet.getEnableChains();
