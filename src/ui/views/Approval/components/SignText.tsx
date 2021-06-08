@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Tooltip } from 'antd';
 import { KEYRING_CLASS } from 'consts';
-import { FallbackSiteLogo } from 'ui/component';
 import { useApproval, useWallet } from 'ui/utils';
 import { hex2Utf8 } from 'ui/utils';
 import {
@@ -95,19 +94,7 @@ const SignText = ({ params }: { params: SignTextProps }) => {
     <>
       <div className="approval-text">
         <div className="site-card">
-          <div className="icon icon-site">
-            <FallbackSiteLogo
-              url={session.icon}
-              origin={session.origin}
-              width="32px"
-              height="32px"
-              style={{
-                borderRadius: '100%',
-                border: '1px solid #D8DFEB',
-              }}
-            />
-          </div>
-          {/* <img className="icon icon-site" src={session.icon} /> */}
+          <img className="icon icon-site" src={session.icon} />
           <div className="site-info">
             <p className="font-medium text-gray-subTitle mb-0 text-13">
               {session.origin}

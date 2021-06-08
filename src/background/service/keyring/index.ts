@@ -794,11 +794,10 @@ class KeyringService extends EventEmitter {
     );
   }
 
-  async getAllTypedVisibleAccounts(): Promise<DisplayedKeryring[]> {
-    const keyrings = await Promise.all(
+  getAllTypedVisibleAccounts(): Promise<DisplayedKeryring[]> {
+    return Promise.all(
       this.keyrings.map((keyring) => this.displayForKeyring(keyring, false))
     );
-    return keyrings.filter((keyring) => keyring.accounts.length > 0);
   }
 
   async getAllVisibleAccountsArray() {

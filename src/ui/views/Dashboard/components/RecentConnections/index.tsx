@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Popover } from 'antd';
-import { TooltipPlacement } from 'antd/lib/tooltip';
 // import positions from 'positions';
 import { browser } from 'webextension-polyfill-ts';
 import { useWallet, getCurrentConnectSite } from 'ui/utils';
 import { ConnectedSite } from 'background/service/permission';
-import { ChainSelector, FallbackSiteLogo } from 'ui/component';
+import { ChainSelector } from 'ui/component';
 import { CHAINS_ENUM, CHAINS } from 'consts';
 import IconInternet from 'ui/assets/internet.svg';
 import './style.less';
+import { TooltipPlacement } from 'antd/lib/tooltip';
 
 const CurrentConnection = ({
   site,
@@ -63,30 +63,15 @@ const ConnectionItem = ({
   onClick?(): void;
   index: number;
 }) => {
-  let placement: TooltipPlacement = 'top';
-  if (index % 4 === 0) {
-    placement = 'right';
-  } else if (index % 4 === 3) {
-    placement = 'left';
-  }
   if (!item) {
-    const popoverContent = (
-      <div className="connect-site-popover">
-        <p className="text-gray-content">
-          Recently used websites will be recorded
-        </p>
-      </div>
-    );
     return (
-      <Popover
-        content={popoverContent}
-        placement={placement}
-        arrowPointAtCenter
+      <div
+        className="item"
+        onClick={onClick}
+        style={{ cursor: onClick ? 'pointer' : 'inherit' }}
       >
-        <div className="item" onClick={onClick} style={{ cursor: 'inherit' }}>
-          <img src="/images/no-recent-connect.png" className="logo" />
-        </div>
-      </Popover>
+        <img src="/images/no-recent-connect.png" className="logo" />
+      </div>
     );
   }
 
@@ -127,6 +112,12 @@ const ConnectionItem = ({
     }
   };
   */
+  let placement: TooltipPlacement = 'top';
+  if (index % 4 === 0) {
+    placement = 'right';
+  } else if (index % 4 === 3) {
+    placement = 'left';
+  }
   return (
     <Popover
       content={popoverContent}
@@ -145,14 +136,7 @@ const ConnectionItem = ({
           src={CHAINS[item.chain].logo}
           alt={CHAINS[item.chain].name}
         />
-        <div className="logo">
-          <FallbackSiteLogo
-            url={item.icon}
-            origin={item.origin}
-            width="32px"
-            height="32px"
-          />
-        </div>
+        <img src={item.icon} className="logo" />
       </div>
     </Popover>
   );
