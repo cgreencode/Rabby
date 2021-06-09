@@ -18,7 +18,7 @@ const BalanceView = ({ currentAccount }) => {
   };
 
   const balancePopoverContent = (
-    <ul>
+    <ul className="balance-popover">
       {chainBalances
         .sort((a, b) => b.usd_value - a.usd_value)
         .map((item) => {
@@ -30,12 +30,9 @@ const BalanceView = ({ currentAccount }) => {
           )!;
           const percent = (item.usd_value / totalUSDValue) * 100;
           return (
-            <li className="flex" key={item.id}>
+            <li className="flex">
               <img className="chain-logo" src={chain.logo} />
-              <span
-                className="amount"
-                title={'$' + splitNumberByStep(item.usd_value.toFixed(2))}
-              >
+              <span className="amount">
                 ${splitNumberByStep(item.usd_value.toFixed(2))}
               </span>
               <div className="progress">
@@ -69,11 +66,7 @@ const BalanceView = ({ currentAccount }) => {
               </span>
             </>
           ) : chainBalances.length > 0 ? (
-            <Popover
-              content={balancePopoverContent}
-              placement="bottomLeft"
-              overlayClassName="balance-popover"
-            >
+            <Popover content={balancePopoverContent} placement="bottomLeft">
               <div className="flex">
                 {chainBalances.map((item) => (
                   <img
