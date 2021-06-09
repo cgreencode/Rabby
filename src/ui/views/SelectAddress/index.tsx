@@ -64,7 +64,6 @@ const SelectAddress = () => {
       pathname: '/import/success',
       state: {
         accounts: selectedAddressIndexes.map((i) => accounts[i]),
-        hasDivider: isMnemonics,
       },
     });
   };
@@ -72,36 +71,30 @@ const SelectAddress = () => {
   return (
     <StrayPageWithButton
       spinning={spinning}
-      header={
-        isMnemonics
-          ? {
-              secondTitle: 'Select Addresses',
-              subTitle: 'Select the addresses you want to import',
-            }
-          : {
-              title: 'Select Addresses',
-              subTitle: 'Select the addresses you want to import',
-              center: true,
-            }
-      }
+      header={{
+        title: 'Select Addresses',
+        subTitle: 'Select the addresses you want to import',
+        center: true,
+      }}
       onSubmit={onSubmit}
       hasBack
       hasDivider={isMnemonics}
       form={form}
     >
-      <div className="overflow-y-auto lg:max-h-[500px]">
-        <Form.Item className="mb-0" name="selectedAddressIndexes">
-          <MultiSelectAddressList
-            accounts={accounts}
-            importedAccounts={importedAccounts}
-          />
-        </Form.Item>
-        <div
-          onClick={() => getAccounts()}
-          className="mt-6 text-blue text-15 text-center cursor-pointer lg:mb-[100px]"
-        >
-          Load More...
-        </div>
+      <Form.Item
+        className="mb-0 lg:max-h-[500px] overflow-auto"
+        name="selectedAddressIndexes"
+      >
+        <MultiSelectAddressList
+          accounts={accounts}
+          importedAccounts={importedAccounts}
+        />
+      </Form.Item>
+      <div
+        onClick={() => getAccounts()}
+        className="mt-28 text-blue text-15 text-center cursor-pointer mb-[120px]"
+      >
+        Load More...
       </div>
     </StrayPageWithButton>
   );
