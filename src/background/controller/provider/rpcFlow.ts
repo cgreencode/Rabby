@@ -17,6 +17,13 @@ export default (req) =>
       ctx.mapMethod = underline2Camelcase(method);
 
       if (!providerController[ctx.mapMethod]) {
+        if (method.startsWith('eth_')) {
+          ctx.ethRpc = true;
+          // maybe return directly later
+          // providerController.ethRpc(req);
+          return;
+        }
+
         throw ethErrors.rpc.methodNotFound({
           message: `method [${method}] doesn't has corresponding handler`,
           data: ctx.request.data,
@@ -44,7 +51,7 @@ export default (req) =>
             params: { origin, name, icon },
             aporovalComponent: 'Connect',
           },
-          { height: 360 }
+          { height: 390 }
         );
 
         permissionService.addConnectedSite(origin, name, icon, defaultChain);
@@ -59,7 +66,7 @@ export default (req) =>
         },
         mapMethod,
       } = ctx;
-      const [approvalType, condition, { height = 720 } = {}] =
+      const [approvalType, condition, { height = 750 } = {}] =
         Reflect.getMetadata('APPROVAL', providerController, mapMethod) || [];
 
       if (approvalType && (!condition || !condition(ctx.request))) {
@@ -78,16 +85,18 @@ export default (req) =>
         permissionService.touchConnectedSite(origin);
       }
     })
-    .use(async ({ approvalRes, mapMethod, request }) => {
+    .use(async ({ approvalRes, mapMethod, request, ethRpc }) => {
       // process request
       const { uiRequestComponent, ...rest } = approvalRes || {};
 
-      const requestDeffer = Promise.resolve(
-        providerController[mapMethod]({
-          ...request,
-          approvalRes,
-        })
-      );
+      const requestDeffer = ethRpc
+        ? providerController.ethRpc(request)
+        : Promise.resolve(
+            providerController[mapMethod]({
+              ...request,
+              approvalRes,
+            })
+          );
 
       if (uiRequestComponent) {
         return await notificationService.requestApproval({

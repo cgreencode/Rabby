@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
+import { useRef } from 'react';
 import { Input, Form, Button } from 'antd';
 import { useWallet, useApproval } from 'ui/utils';
 
