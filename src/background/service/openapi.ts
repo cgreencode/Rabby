@@ -1,6 +1,7 @@
 import axios, { Method } from 'axios';
 import rateLimit from 'axios-rate-limit';
-import { createPersistStore } from 'background/utils';
+import { createPersistStore, underline2Camelcase } from 'background/utils';
+import { TX_TYPE_ENUM } from 'consts';
 
 interface OpenApiConfigValue {
   path: string;
@@ -71,7 +72,7 @@ export interface TotalBalanceResponse {
   chain_list: ChainWithBalance[];
 }
 
-export interface TokenItem {
+interface AssertsChange {
   amount: number;
   chain: string;
   decimals: number;
@@ -89,6 +90,22 @@ export interface TokenItem {
   time_at: number;
 }
 
+export interface NativeToken {
+  id: string;
+  chain: string;
+  name: string;
+  symbol: string;
+  display_symbol: string | null;
+  optimized_symbol: string;
+  decimals: number;
+  logo_url: string;
+  price: number;
+  is_verified: boolean;
+  is_core: boolean;
+  is_wallet: boolean;
+  time_at: number;
+}
+
 export interface GasResult {
   estimated_gas_cost_usd_value: number;
   estimated_gas_cost_value: number;
@@ -99,6 +116,19 @@ export interface GasResult {
   max_gas_cost_value: number;
 }
 
+export interface ExplainTxResponse {
+  gas: GasResult;
+  native_token: NativeToken;
+  pre_exec: {
+    assets_change: AssertsChange[];
+    err_msg: string;
+    success: boolean;
+    tx_type: TX_TYPE_ENUM;
+  };
+  tags: string[];
+  tx: Tx;
+}
+
 export interface GasLevel {
   level: string;
   price: number;
@@ -106,59 +136,25 @@ export interface GasLevel {
   estimated_seconds: number;
 }
 
-export interface BalanceChange {
-  err_msg: string;
-  receive_token_list: TokenItem[];
-  send_token_list: TokenItem[];
-  success: boolean;
-  usd_value_change: number;
-}
-
-export interface ExplainTxResponse {
-  balance_change: BalanceChange;
-  gas: {
-    estimated_gas_cost_usd_value: number;
-    estimated_gas_cost_value: number;
-    estimated_gas_used: number;
-    estimated_seconds: number;
-  };
-  pre_exec: {
-    success: boolean;
-    err_msg: string;
-  };
-  recommend: {
-    gas: string;
-    nonce: string;
-  };
-  support_balance_change: true;
-  type_call?: {
-    action: string;
-    contract: string;
-    contract_protocol_logo_url: string;
-    contract_protocol_name: string;
-  };
-  type_send?: {
-    to_addr: string;
-    token_symbol: string;
-    token_amount: number;
-  };
-  type_token_approval?: {
-    spender: string;
-    spender_protocol_logo_url: string;
-    spender_protocol_name: string;
-    token_symbol: string;
-    token_amount: number;
-    is_infinity: boolean;
-  };
-  type_cancel_token_approval?: {
-    spender: string;
-    spender_protocol_logo_url: string;
-    spender_protocol_name: string;
-    token_symbol: string;
-  };
-  type_cancel_tx?: any; // TODO
-  type_deploy_contract?: any; // TODO
-}
+export const EVM_RPC_METHODS = [
+  'eth_blockNumber',
+  'eth_call',
+  'eth_coinbase',
+  'eth_estimateGas',
+  'eth_gasPrice',
+  'eth_getBalance',
+  'eth_getBlockByNumber',
+  'eth_getCode',
+  'eth_getLogs',
+  'eth_getProof',
+  'eth_getTransactionCount',
+  'eth_getTransactionReceipt',
+  'eth_getTransactionByHash',
+  'eth_getWork',
+  'eth_sendRawTransaction',
+  'eth_subscribe',
+  'eth_syncing',
+] as const;
 
 interface RPCResponse<T> {
   result: T;
@@ -170,7 +166,14 @@ interface RPCResponse<T> {
   };
 }
 
-class OpenApiService {
+interface OpenApiService {
+  ethCall(chainId: string, params: any[]): Promise<any>;
+  ethGetTransactionCount(chainId: string, params: any[]): Promise<any>;
+  ethBlockNumber(chainId: string): Promise<any>;
+  ethEstimateGas(chainId: string, params: any[]): Promise<number>;
+}
+
+class OpenApiService implements OpenApiService {
   store!: OpenApiStore;
 
   request = rateLimit(axios.create(), { maxRPS: 25 });
@@ -183,13 +186,6 @@ class OpenApiService {
   getHost = () => {
     return this.store.host;
   };
-
-  ethRpc:
-    | ((
-        chainId: string,
-        arg: { method: string; params: Array<any> }
-      ) => Promise<any>)
-    | null = null;
 
   init = async () => {
     this.store = await createPersistStore({
@@ -279,7 +275,7 @@ class OpenApiService {
     });
     try {
       await this.getConfig();
-      this._mountMethods();
+      this._mountMethods(EVM_RPC_METHODS);
     } catch (e) {
       console.error('[rabby] openapi init error', e);
     }
@@ -297,25 +293,32 @@ class OpenApiService {
     this.store.config = data;
   };
 
-  private _mountMethods = () => {
-    const config = this.store.config.eth_rpc;
-    if (!config) {
-      return;
-    }
+  private _mountMethods = (methods: typeof EVM_RPC_METHODS) => {
+    methods.forEach((method) => {
+      const config = this.store.config[method];
 
-    this.ethRpc = (chain_id, { method, params }) => {
-      return this.request[config.method](config.path, {
-        chain_id,
-        method,
-        params,
-      }).then(({ data }: { data: RPCResponse<any> }) => {
-        if (data?.error) {
-          throw data.error;
-        }
+      if (!config) {
+        return;
+      }
 
-        return data?.result;
-      });
-    };
+      const [, ...rest] = config.params || [];
+      this[underline2Camelcase(method)] = (chainId, params) => {
+        const reqData = {
+          chain_id: chainId,
+          ...rest.reduce((m, n, i) => {
+            m[n] = params[i];
+
+            return m;
+          }, {}),
+        };
+
+        const _config = config.method === 'get' ? { params: reqData } : reqData;
+
+        return this.request[config.method](config.path, _config).then(
+          ({ data }: { data: RPCResponse<any> }) => data?.result
+        );
+      };
+    });
   };
 
   getSupportedChains = async (): Promise<ServerChain[]> => {
@@ -323,16 +326,6 @@ class OpenApiService {
     // const { data } = await this.request[config.method](config.path);
     // return data;
     return Promise.resolve([
-      {
-        community_id: 1,
-        id: 'eth',
-        logo_url:
-          'https://static.debank.com/image/chain/logo_url/eth/42ba589cd077e7bdd97db6480b0ff61d.png',
-        name: 'Ethereum',
-        native_token_id: 'eth',
-        wrapped_token_id: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-        symbol: 'ETH',
-      },
       {
         community_id: 56,
         id: 'bsc',
@@ -344,58 +337,14 @@ class OpenApiService {
         symbol: 'BSC',
       },
       {
-        community_id: 137,
-        id: 'matic',
-        logo_url: '',
-        name: '',
-        native_token_id: '',
-        wrapped_token_id: '',
-        symbol: '',
-      },
-      {
-        community_id: 100,
-        id: 'xdai',
-        logo_url: '',
-        name: '',
-        native_token_id: '',
-        wrapped_token_id: '',
-        symbol: '',
-      },
-      {
-        community_id: 128,
-        id: 'heco',
-        logo_url: '',
-        name: '',
-        native_token_id: '',
-        wrapped_token_id: '',
-        symbol: '',
-      },
-      {
-        community_id: 250,
-        id: 'ftm',
-        logo_url: '',
-        name: '',
-        native_token_id: '',
-        wrapped_token_id: '',
-        symbol: '',
-      },
-      {
-        community_id: 66,
-        id: 'okt',
-        logo_url: '',
-        name: '',
-        native_token_id: '',
-        wrapped_token_id: '',
-        symbol: '',
-      },
-      {
-        community_id: 421611,
-        id: 'arbitrum',
-        logo_url: '',
-        name: '',
-        native_token_id: '',
-        wrapped_token_id: '',
-        symbol: '',
+        community_id: 1,
+        id: 'eth',
+        logo_url:
+          'https://static.debank.com/image/chain/logo_url/eth/42ba589cd077e7bdd97db6480b0ff61d.png',
+        name: 'Ethereum',
+        native_token_id: 'eth',
+        wrapped_token_id: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        symbol: 'ETH',
       },
     ]);
   };

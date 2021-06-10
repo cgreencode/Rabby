@@ -10,25 +10,29 @@ import {
   openapiService,
 } from 'background/service';
 import { Session } from 'background/service/session';
-import { Tx } from 'background/service/openapi';
+import { EVM_RPC_METHODS, Tx } from 'background/service/openapi';
 import { CHAINS } from 'consts';
+import { underline2Camelcase } from 'background/utils';
 import BaseController from '../base';
 
 class ProviderController extends BaseController {
-  ethRpc = (req) => {
-    if (!openapiService.ethRpc) {
-      throw ethErrors.provider.disconnected();
-    }
+  constructor() {
+    super();
 
-    const {
-      data: { method, params },
-      session: { origin },
-    } = req;
-    const chainServerId =
-      CHAINS[permissionService.getConnectedSite(origin)!.chain].serverId;
+    this._mountMethods(EVM_RPC_METHODS);
+  }
 
-    return openapiService.ethRpc(chainServerId, { method, params });
-  };
+  private _mountMethods(methods) {
+    methods.forEach((method) => {
+      const parsedMethodName = underline2Camelcase(method);
+      this[parsedMethodName] = ({ data: { params }, session: { origin } }) => {
+        const chainServerId =
+          CHAINS[permissionService.getConnectedSite(origin)!.chain].serverId;
+
+        return openapiService[parsedMethodName](chainServerId, params);
+      };
+    });
+  }
 
   @Reflect.metadata('APPROVAL', ['SignTx'])
   ethSendTransaction = async ({
@@ -113,7 +117,7 @@ class ProviderController extends BaseController {
           chainParams.chainId
       );
     },
-    { height: 390 },
+    { height: 360 },
   ])
   walletAddEthereumChain = ({
     data: {

@@ -6,7 +6,6 @@ import { AddressViewer, Spin } from 'ui/component';
 import { splitNumberByStep } from 'ui/utils/number';
 import { HARDWARE_KEYRING_TYPES, CHAINS } from 'consts';
 import { IconLedger, IconOnekey, IconTrezor } from 'ui/assets';
-import IconEmptyChain from 'ui/assets/chain-logos/empty.svg';
 
 interface DisplayChainWithWhiteLogo extends ChainWithBalance {
   logo?: string;
@@ -114,10 +113,9 @@ const AddressItem = ({
             className="subtitle"
           />
         </div>
-
-        <div className="mt-4 flex w-full">
-          {chainBalances.length ? (
-            chainBalances.map((item) => (
+        {!!chainBalances.length && (
+          <div className="mt-4 flex w-full">
+            {chainBalances.map((item) => (
               <img
                 src={item.logo}
                 className="w-16 h-16 mr-[6px]"
@@ -125,11 +123,9 @@ const AddressItem = ({
                 alt={`${item.name}: $${item.usd_value.toFixed(2)}`}
                 title={`${item.name}: $${item.usd_value.toFixed(2)}`}
               />
-            ))
-          ) : (
-            <img src={IconEmptyChain} />
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
       {keyring && (
         <div className="action-button flex items-center">

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { intToHex, isHexString } from 'ethereumjs-util';
-import { Button, Checkbox } from 'antd';
+import { intToHex } from 'ethereumjs-util';
 import { Spin } from 'ui/component';
-import AccountCard from './AccountCard';
 import SecurityCheckBar from './SecurityCheckBar';
 import SecurityCheckDetail from './SecurityCheckDetail';
+import { Button, Modal } from 'antd';
 import {
   ExplainTxResponse,
   GasLevel,
@@ -12,7 +11,7 @@ import {
   SecurityCheckDecision,
   Tx,
 } from 'background/service/openapi';
-import { CHAINS } from 'consts';
+import { CHAINS, TX_TYPE_ENUM } from 'consts';
 import { useWallet, useApproval } from 'ui/utils';
 import Approve from './TxComponents/Approve';
 import Cancel from './TxComponents/Cancel';
@@ -21,26 +20,13 @@ import CancelTx from './TxComponents/CancelTx';
 import Send from './TxComponents/Send';
 import GasSelector from './TxComponents/GasSelecter';
 import { WaitingSignComponent } from './SignText';
-import { Chain } from 'background/service/chain';
-import clsx from 'clsx';
 
-const TxTypeComponent = ({
-  txDetail,
-  chain,
-}: {
-  txDetail: ExplainTxResponse;
-  chain: Chain;
-}) => {
-  if (txDetail.type_cancel_tx) return <CancelTx chainEnum={chain.enum} />;
-  if (txDetail.type_cancel_token_approval)
-    return <Cancel data={txDetail} chainEnum={chain.enum} />;
-  if (txDetail.type_token_approval)
-    return <Approve data={txDetail} chainEnum={chain.enum} />;
-  if (txDetail.type_send)
-    return <Send data={txDetail} chainEnum={chain.enum} />;
-  if (txDetail.type_call)
-    return <Sign data={txDetail} chainEnum={chain.enum} />;
-  return <></>;
+const confirmText = {
+  [TX_TYPE_ENUM.APPROVE]: 'Approve',
+  [TX_TYPE_ENUM.SEND]: 'Send',
+  [TX_TYPE_ENUM.SIGN_TX]: 'Sign',
+  [TX_TYPE_ENUM.CANCEL_APPROVE]: 'Confirm',
+  [TX_TYPE_ENUM.CANCEL_TX]: 'Confirm',
 };
 
 const SignTx = ({ params, origin }) => {
@@ -65,51 +51,35 @@ const SignTx = ({ params, origin }) => {
   if (!chainId) {
     chainId = CHAINS[site!.chain].id;
   }
-  const chain = Object.values(CHAINS).find((item) => item.id === chainId)!;
   const [{ data = '0x', from, gas, gasPrice, nonce, to, value }] = params.data;
   const [tx, setTx] = useState<Tx>({
     chainId,
     data: data || '0x', // can not execute with empty string, use 0x instead
     from,
     gas,
-    gasPrice:
-      gasPrice && (isHexString(gasPrice) ? gasPrice : intToHex(gasPrice)),
+    gasPrice,
     nonce,
     to,
     value,
   });
   const [realNonce, setRealNonce] = useState('');
   const [gasLimit, setGasLimit] = useState(gas);
-  const [forceProcess, setForceProcess] = useState(false);
 
   const checkTx = async (address: string) => {
-    try {
-      const res = await wallet.openapi.checkTx(
-        {
-          ...tx,
-          nonce: tx.nonce || '0x1',
-          data: tx.data,
-          value: tx.value || '0x0',
-          gas: tx.gas || '',
-        }, // set a mock nonce for check if dapp not set it
-        origin,
-        address
-      );
-      setSecurityCheckStatus(res.decision);
-      setSecurityCheckAlert(res.alert);
-      setSecurityCheckDetail(res);
-    } catch (e) {
-      const alert = e.message || JSON.stringify(e);
-      setSecurityCheckStatus('danger');
-      setSecurityCheckAlert(alert);
-      setSecurityCheckDetail({
-        alert,
-        decision: 'danger',
-        danger_list: [{ id: 1, alert }],
-        warning_list: [],
-        forbidden_list: [],
-      });
-    }
+    const res = await wallet.openapi.checkTx(
+      {
+        ...tx,
+        nonce: tx.nonce || '0x1',
+        data: tx.data,
+        value: tx.value || '0x0',
+        gas: tx.gas || '',
+      }, // set a mock nonce for check if dapp not set it
+      origin,
+      address
+    );
+    setSecurityCheckStatus(res.decision);
+    setSecurityCheckAlert(res.alert);
+    setSecurityCheckDetail(res);
   };
 
   const explainTx = async (address: string) => {
@@ -125,13 +95,24 @@ const SignTx = ({ params, origin }) => {
       address,
       tx.from !== tx.to
     );
+    if (!res.pre_exec.success) {
+      Modal.error({
+        title: 'Error',
+        content: 'Pre-execution not passed, please try again',
+        onOk: rejectApproval,
+      });
+      return;
+    }
     if (!gasLimit) {
       // use server response gas limit
-      setGasLimit(res.recommend.gas);
+      setGasLimit(res.tx.gas);
     }
     setTxDetail(res);
-    if (tx.from !== tx.to) setRealNonce(res.recommend.nonce); // only use nonce from s
+    setRealNonce(res.tx.nonce);
     setPreprocessSuccess(res.pre_exec.success);
+    if (!res.pre_exec.success) {
+      setShowSecurityCheckDetail(true);
+    }
   };
 
   const getDefaultGas = async () => {
@@ -192,10 +173,6 @@ const SignTx = ({ params, origin }) => {
     rejectApproval('User Reject');
   };
 
-  const handleForceProcessChange = (checked: boolean) => {
-    setForceProcess(checked);
-  };
-
   useEffect(() => {
     if (!tx.gasPrice) {
       // use minimum gas as default gas if dapp not set gasPrice
@@ -207,99 +184,79 @@ const SignTx = ({ params, origin }) => {
 
   return (
     <Spin spinning={!isReady}>
-      <AccountCard />
-      <div
-        className={clsx('approval-tx', {
-          'pre-process-failed': !preprocessSuccess,
-        })}
-      >
+      <div className="approval-tx">
         {txDetail && (
           <>
-            {txDetail && <TxTypeComponent txDetail={txDetail} chain={chain} />}
-            <GasSelector
-              tx={tx}
-              gas={{
-                ...(txDetail
-                  ? txDetail.gas
-                  : {
-                      estimated_gas_cost_usd_value: 0,
-                      estimated_gas_cost_value: 0,
-                      estimated_seconds: 0,
-                      estimated_gas_used: 0,
-                    }),
-                front_tx_count: 0,
-                max_gas_cost_usd_value: 0,
-                max_gas_cost_value: 0,
-              }}
-              chainId={chainId}
-              onChange={handleGasChange}
-            />
+            <div className="site-card">
+              <img className="icon icon-site" src={session.icon} />
+              <div className="site-info">
+                <p className="font-medium text-gray-subTitle mb-0 text-13">
+                  {session.origin}
+                </p>
+                <p className="text-12 text-gray-content mb-0">{session.name}</p>
+              </div>
+              <div className="chain-info">
+                <img
+                  src={CHAINS[site!.chain].logo}
+                  alt={CHAINS[site!.chain].name}
+                  className="icon icon-chain"
+                />
+                <span>{CHAINS[site!.chain].name}</span>
+              </div>
+            </div>
+            {txDetail.pre_exec.success &&
+              txDetail.pre_exec.tx_type === TX_TYPE_ENUM.APPROVE && (
+                <Approve data={txDetail} />
+              )}
+            {txDetail.pre_exec.success &&
+              txDetail.pre_exec.tx_type === TX_TYPE_ENUM.CANCEL_APPROVE && (
+                <Cancel data={txDetail} />
+              )}
+            {txDetail.pre_exec.success &&
+              txDetail.pre_exec.tx_type === TX_TYPE_ENUM.SIGN_TX && (
+                <Sign data={txDetail} />
+              )}
+            {txDetail.pre_exec.success &&
+              txDetail.pre_exec.tx_type === TX_TYPE_ENUM.CANCEL_TX && (
+                <CancelTx />
+              )}
+            {txDetail.pre_exec.success &&
+              txDetail.pre_exec.tx_type === TX_TYPE_ENUM.SEND && (
+                <Send data={txDetail} />
+              )}
             <footer className="connect-footer">
-              {txDetail && txDetail.pre_exec.success && (
-                <>
-                  <SecurityCheckBar
-                    status={securityCheckStatus}
-                    alert={securityCheckAlert}
-                    onClick={() => setShowSecurityCheckDetail(true)}
-                  />
-                  <div className="action-buttons flex justify-between">
-                    <Button
-                      type="primary"
-                      size="large"
-                      className="w-[172px]"
-                      onClick={handleCancel}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="primary"
-                      size="large"
-                      className="w-[172px]"
-                      onClick={() => handleAllow()}
-                    >
-                      {securityCheckStatus === 'pass' ? 'Sign' : 'Continue'}
-                    </Button>
-                  </div>
-                </>
+              {txDetail.pre_exec.success && (
+                <GasSelector
+                  tx={txDetail.tx}
+                  gas={txDetail.gas}
+                  nativeToken={txDetail.native_token}
+                  onChange={handleGasChange}
+                />
               )}
-              {txDetail && !txDetail.pre_exec.success && (
-                <>
-                  <p className="text-gray-subTitle mb-8 text-15 font-medium">
-                    Pre-execution failed
-                  </p>
-                  <p className="text-gray-content text-14 mb-20">
-                    {txDetail.pre_exec.err_msg}
-                  </p>
-                  <div className="force-process">
-                    <Checkbox
-                      onChange={(e) =>
-                        handleForceProcessChange(e.target.checked)
-                      }
-                    >
-                      I'm sure I want to proceed anyway.
-                    </Checkbox>
-                  </div>
-                  <div className="action-buttons flex justify-between">
-                    <Button
-                      type="primary"
-                      size="large"
-                      className="w-[172px]"
-                      onClick={handleCancel}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="primary"
-                      size="large"
-                      className="w-[172px]"
-                      disabled={!forceProcess}
-                      onClick={() => handleAllow(true)}
-                    >
-                      Sign
-                    </Button>
-                  </div>
-                </>
-              )}
+              <SecurityCheckBar
+                status={securityCheckStatus}
+                alert={securityCheckAlert}
+              />
+              <div className="action-buttons flex justify-between">
+                <Button
+                  type="primary"
+                  size="large"
+                  className="w-[172px]"
+                  onClick={handleCancel}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="primary"
+                  size="large"
+                  className="w-[172px]"
+                  onClick={() => handleAllow()}
+                >
+                  {securityCheckStatus === 'pass'
+                    ? confirmText[txDetail?.pre_exec.tx_type] || 'Confirm'
+                    : 'Continue'}
+                </Button>
+              </div>
             </footer>
           </>
         )}
@@ -309,7 +266,9 @@ const SignTx = ({ params, origin }) => {
             onCancel={() => setShowSecurityCheckDetail(false)}
             data={securityCheckDetail}
             onOk={() => handleAllow(true)}
-            okText="Sign"
+            okText={
+              (txDetail && confirmText[txDetail.pre_exec.tx_type]) || 'Confirm'
+            }
             preprocessSuccess={preprocessSuccess}
           />
         )}

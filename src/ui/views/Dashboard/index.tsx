@@ -17,7 +17,6 @@ import IconQrcode from 'ui/assets/qrcode.svg';
 import IconSend from 'ui/assets/send.svg';
 import IconSwap from 'ui/assets/swap.svg';
 import IconHistory from 'ui/assets/history.svg';
-import IconPending from 'ui/assets/pending.svg';
 import IconSuccess from 'ui/assets/success.svg';
 import IconChecked from 'ui/assets/checked.svg';
 import IconNotChecked from 'ui/assets/not-checked.svg';
@@ -102,27 +101,20 @@ const Dashboard = () => {
     setCurrentAccount(account);
   };
 
-  const getPendingTxCount = async (address: string) => {
-    const { total_count } = await wallet.openapi.getPendingCount(address);
+  const getPendingTxCount = async () => {
+    if (!currentAccount) return;
+    const { total_count } = await wallet.openapi.getPendingCount(
+      currentAccount.address
+    );
     setPendingTxCount(total_count);
   };
 
   useEffect(() => {
-    if (!currentAccount) return;
-    getPendingTxCount(currentAccount.address);
+    getPendingTxCount();
   }, [currentAccount]);
 
   useEffect(() => {
     getCurrentAccount();
-
-    const intervalId = setInterval(() => {
-      if (!currentAccount) return;
-      getPendingTxCount(currentAccount.address);
-    }, 30000);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
   }, []);
 
   const handleConfig = () => {
@@ -233,15 +225,13 @@ const Dashboard = () => {
               Swap
             </div>
             <div className="operation-item" onClick={handleGotoHistory}>
-              {pendingTxCount > 0 ? (
-                <div className="pending-count">
-                  <img src={IconPending} className="icon icon-pending" />
-                  {pendingTxCount}
-                </div>
-              ) : (
-                <img className="icon icon-history" src={IconHistory} />
-              )}
+              <img className="icon icon-history" src={IconHistory} />
               History
+              {pendingTxCount > 0 && (
+                <p className="pending-count mb-0 text-12 text-white text-opacity-60">
+                  {pendingTxCount} pending
+                </p>
+              )}
             </div>
           </div>
         </div>
