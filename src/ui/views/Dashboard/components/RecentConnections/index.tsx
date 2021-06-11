@@ -151,9 +151,6 @@ const ConnectionItem = ({
             origin={item.origin}
             width="32px"
             height="32px"
-            style={{
-              borderRadius: '4px',
-            }}
           />
         </div>
       </div>
