@@ -45,7 +45,7 @@ const AuthenticationModal = ({
           validateStatus={error ? 'error' : undefined}
           help={error}
         >
-          <Input placeholder="Password" type="password" size="large" />
+          <Input placeholder="Password" type="password" />
         </Form.Item>
         <div className="flex justify-center">
           <Button

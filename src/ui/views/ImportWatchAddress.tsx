@@ -50,7 +50,6 @@ const ImportWatchAddress = () => {
           placeholder="Address"
           size="large"
           maxLength={44}
-          autoSize={false}
         />
       </Form.Item>
     </StrayPageWithButton>

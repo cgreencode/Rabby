@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
+import { useRef } from 'react';
 import { Input, Form, Button } from 'antd';
 import { useWallet, useApproval } from 'ui/utils';
 
@@ -31,8 +32,8 @@ const Unlock = () => {
 
   return (
     <div className="unlock">
-      <div className="header pt-[304px] text-center text-white text-20">
-        A browser plugin for DeFi users
+      <div className="header">
+        <div className="image" />
       </div>
       <Form className="bg-gray-bg flex-1" form={form} onFinish={onSubmit}>
         <Form.Item

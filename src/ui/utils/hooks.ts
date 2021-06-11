@@ -13,7 +13,7 @@ export const useApproval = () => {
       wallet.resolveApproval(data);
     }
     setTimeout(() => {
-      history.replace('/');
+      history.push('/');
     });
   };
 
@@ -54,21 +54,13 @@ export const usePopupOpen = () => {
   }, []);
 };
 
-export const useSelectOption = <T>({
-  options,
-  defaultValue = [],
-  onChange,
-  value,
-}: {
-  options: T[];
-  defaultValue?: T[];
-  onChange?: (arg: T[]) => void;
-  value?: T[];
-}) => {
+export const useSelectOption = (
+  onChange?,
+  value?,
+  defaultValue: Array<string | number> = []
+) => {
   const isControlled = useRef(typeof value !== 'undefined').current;
-  const [idxs, setChoosedIdxs] = useState(
-    (isControlled ? value! : defaultValue).map((x) => options.indexOf(x))
-  );
+  const [_value, setValue] = useState(isControlled ? value : defaultValue);
 
   useEffect(() => {
     if (!isControlled) {
@@ -76,45 +68,40 @@ export const useSelectOption = <T>({
     }
 
     // shallow compare
-    if (value && idxs.some((x, i) => options[x] != value[i])) {
-      setChoosedIdxs(value.map((x) => options.indexOf(x)));
+    if (value && _value.some((x, i) => x !== value[i])) {
+      setValue(value);
     }
   }, [value]);
 
-  const changeValue = (idxs: number[]) => {
-    setChoosedIdxs([...idxs]);
-    onChange && onChange(idxs.map((o) => options[o]));
+  const handleRemove = (idx: number) => {
+    _value.splice(idx, 1);
+    setValue((_value) => [..._value]);
+    onChange && onChange(_value);
   };
 
-  const handleRemove = (i: number) => {
-    idxs.splice(i, 1);
-    changeValue(idxs);
-  };
-
-  const handleChoose = (i: number) => {
-    if (idxs.includes(i)) {
+  const handleChoose = (op: string) => {
+    if (_value.includes(op)) {
       return;
     }
 
-    idxs.push(i);
-    changeValue(idxs);
+    _value.push(op);
+    setValue((_value) => [..._value]);
+    onChange && onChange(_value);
   };
 
-  const handleToggle = (i: number) => {
-    const inIdxs = idxs.indexOf(i);
-    if (inIdxs !== -1) {
-      handleRemove(inIdxs);
-    } else {
-      handleChoose(i);
+  const handleToggle = (op: string) => {
+    const opIndex = _value.indexOf(op);
+    if (opIndex > -1) {
+      handleRemove(opIndex);
+      return;
     }
+
+    _value.push(op);
+    setValue((_value) => [..._value]);
+    onChange && onChange(_value);
   };
 
-  return [
-    idxs.map((o) => options[o]),
-    handleRemove,
-    handleChoose,
-    handleToggle,
-  ] as const;
+  return [_value, handleRemove, handleChoose, handleToggle];
 };
 
 export const useWalletRequest = (
