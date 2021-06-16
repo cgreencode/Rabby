@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import cx from 'clsx';
-import { Field, Checkbox } from 'ui/component';
+import { Field } from 'ui/component';
+import IconChecked from 'ui/assets/checked.svg';
+import IconNotChecked from 'ui/assets/not-checked.svg';
 
 interface FieldCheckboxProps {
   leftIcon?: React.ReactNode;
@@ -34,12 +36,13 @@ const FieldCheckbox = ({
     }
   }, [checked]);
 
-  const handleToggle = (checked) => {
+  const handleToggle = () => {
     if (disable) {
       return;
     }
-    setChecked(checked);
-    onChange && onChange(checked);
+    const v = !_checked;
+    setChecked(v);
+    onChange && onChange(v);
   };
 
   return (
@@ -52,18 +55,13 @@ const FieldCheckbox = ({
       leftIcon={leftIcon}
       rightIcon={
         disable || (
-          <Checkbox
-            checked={_checked}
-            width="20px"
-            height="20px"
-            background="#27C193"
-            onChange={handleToggle}
+          <img
+            className="icon icon-checked"
+            src={_checked ? IconChecked : IconNotChecked}
           />
         )
       }
-      onClick={() => {
-        handleToggle(!checked);
-      }}
+      onClick={handleToggle}
     >
       {children}
     </Field>

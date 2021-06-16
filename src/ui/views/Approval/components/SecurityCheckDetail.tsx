@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDebounce } from 'react-use';
-import { Drawer, Button, Input } from 'antd';
-import { Checkbox } from 'ui/component';
+import { Drawer, Button, Input, Checkbox } from 'antd';
 import { useWallet } from 'ui/utils';
 import { SecurityCheckResponse } from 'background/service/openapi';
 import { SvgIconCross } from 'ui/assets';
@@ -118,8 +117,7 @@ const SecurityCheckDetail = ({
           {!preprocessSuccess && (
             <div className="force-process">
               <Checkbox
-                checked={forceProcess}
-                onChange={(value) => handleForceProcessChange(value)}
+                onChange={(e) => handleForceProcessChange(e.target.checked)}
               >
                 I'm sure I want to proceed anyway.
               </Checkbox>

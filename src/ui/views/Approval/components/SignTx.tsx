@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { intToHex, isHexString } from 'ethereumjs-util';
-import { Button } from 'antd';
-import { Spin, Checkbox } from 'ui/component';
+import { Button, Checkbox } from 'antd';
+import { Spin } from 'ui/component';
 import AccountCard from './AccountCard';
 import SecurityCheckBar from './SecurityCheckBar';
 import SecurityCheckDetail from './SecurityCheckDetail';
@@ -272,8 +272,9 @@ const SignTx = ({ params, origin }) => {
                   </p>
                   <div className="force-process">
                     <Checkbox
-                      checked={forceProcess}
-                      onChange={(e) => handleForceProcessChange(e)}
+                      onChange={(e) =>
+                        handleForceProcessChange(e.target.checked)
+                      }
                     >
                       I'm sure I want to proceed anyway.
                     </Checkbox>

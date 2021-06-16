@@ -12,7 +12,6 @@ import {
 } from 'ui/component';
 import { DisplayedKeryring } from 'background/service/keyring';
 import { IconArrowDown, SvgIconPlusPrimary } from 'ui/assets';
-import IconSuccess from 'ui/assets/success.svg';
 import './style.less';
 
 const { Nav: StrayFooterNav } = StrayFooter;
@@ -99,11 +98,7 @@ const AddressManagement = () => {
 
     const handleDeleteAddress = async () => {
       await wallet.removeAddress(data, keyring.type);
-      message.success({
-        icon: <img src={IconSuccess} className="icon icon-success" />,
-        content: 'removed',
-        duration: 0.5,
-      });
+      message.success('removed');
       getAllKeyrings();
     };
 
