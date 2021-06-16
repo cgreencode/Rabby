@@ -134,7 +134,7 @@ class KeyringService extends EventEmitter {
     return bip39.generateMnemonic();
   }
 
-  async generatePreMnemonic(): Promise<string> {
+  async generateMnemonicWithCache(): Promise<string> {
     if (!this.password) {
       throw new Error('you need to unlock wallet first!');
     }

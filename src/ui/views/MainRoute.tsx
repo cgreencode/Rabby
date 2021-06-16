@@ -52,7 +52,7 @@ const Main = () => {
         <PrivateRoute exact path="/start-chain-management">
           <StartChainManagement />
         </PrivateRoute>
-        <PrivateRoute exact path="/create-mnemonics">
+        <PrivateRoute exact path="/create">
           <CreateMnemonics />
         </PrivateRoute>
         <PrivateRoute exact path="/import">
