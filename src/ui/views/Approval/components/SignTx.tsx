@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { intToHex, isHexString } from 'ethereumjs-util';
-import { Button, Checkbox } from 'antd';
-import { Spin } from 'ui/component';
+import { Button } from 'antd';
+import { Spin, Checkbox } from 'ui/component';
 import AccountCard from './AccountCard';
 import SecurityCheckBar from './SecurityCheckBar';
 import SecurityCheckDetail from './SecurityCheckDetail';
@@ -130,7 +130,7 @@ const SignTx = ({ params, origin }) => {
       setGasLimit(res.recommend.gas);
     }
     setTxDetail(res);
-    if (tx.from !== tx.to) setRealNonce(res.recommend.nonce); // only use nonce from s
+    if (tx.from !== tx.to) setRealNonce(res.recommend.nonce); // do not overwrite nonce if from === to(cancel transaction)
     setPreprocessSuccess(res.pre_exec.success);
   };
 
@@ -176,7 +176,7 @@ const SignTx = ({ params, origin }) => {
 
     resolveApproval({
       ...tx,
-      nonce: realNonce,
+      nonce: realNonce || tx.nonce,
       gas: gasLimit,
     });
   };
@@ -272,9 +272,8 @@ const SignTx = ({ params, origin }) => {
                   </p>
                   <div className="force-process">
                     <Checkbox
-                      onChange={(e) =>
-                        handleForceProcessChange(e.target.checked)
-                      }
+                      checked={forceProcess}
+                      onChange={(e) => handleForceProcessChange(e)}
                     >
                       I'm sure I want to proceed anyway.
                     </Checkbox>
