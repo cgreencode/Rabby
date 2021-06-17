@@ -14,8 +14,7 @@ import TrezorKeyring from './eth-trezor-keyring';
 import OnekeyKeyring from './eth-onekey-keyring';
 import WatchKeyring from './eth-watch-keyring';
 import preference from '../preference';
-import { KEYRING_TYPE, HARDWARE_KEYRING_TYPES } from 'consts';
-import DisplayKeyring from './display';
+import { KEYRING_TYPE } from 'consts';
 
 export const KEYRING_SDK_TYPES = {
   SimpleKeyring,
@@ -47,7 +46,7 @@ interface MemStoreState {
 export interface DisplayedKeryring {
   type: string;
   accounts: string[];
-  keyring: DisplayKeyring;
+  keyring: any;
 }
 
 class KeyringService extends EventEmitter {
@@ -702,12 +701,6 @@ class KeyringService extends EventEmitter {
     const Keyring = this.getKeyringClassForType(type);
     const keyring = new Keyring();
     await keyring.deserialize(data);
-    if (
-      keyring.type === HARDWARE_KEYRING_TYPES.Ledger.type &&
-      preference.store.useLedgerLive
-    ) {
-      await keyring.updateTransportMethod(true);
-    }
     // getAccounts also validates the accounts for some keyrings
     await keyring.getAccounts();
     this.keyrings.push(keyring);

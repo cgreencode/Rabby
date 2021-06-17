@@ -11,7 +11,6 @@ import {
   StrayFooter,
 } from 'ui/component';
 import { DisplayedKeryring } from 'background/service/keyring';
-import DisplayKeyring from 'background/service/keyring/display';
 import { IconArrowDown, SvgIconPlusPrimary } from 'ui/assets';
 import IconSuccess from 'ui/assets/success.svg';
 import './style.less';
@@ -55,19 +54,15 @@ const AddressManagement = () => {
 
   const handleViewMnemonics = async () => {
     try {
-      await AuthenticationModal({
-        wallet,
-        async validationHandler(password) {
-          const mnemonic = await wallet.getMnemonics(password);
-          Modal.info({
-            title: 'Mnemonic',
-            centered: true,
-            content: mnemonic,
-            cancelText: null,
-            okText: null,
-            className: 'single-btn',
-          });
-        },
+      await AuthenticationModal({ wallet });
+      const mnemonic = await wallet.getCurrentMnemonics();
+      Modal.info({
+        title: 'Mnemonic',
+        centered: true,
+        content: mnemonic,
+        cancelText: null,
+        okText: null,
+        className: 'single-btn',
       });
     } catch (e) {
       // NOTHING
@@ -79,7 +74,7 @@ const AddressManagement = () => {
     keyring,
   }: {
     data: string;
-    keyring: DisplayKeyring;
+    keyring: any;
   }) => {
     const isHidden = hiddenAddresses.find(
       (item) => item.type === keyring.type && item.address === data
@@ -87,19 +82,15 @@ const AddressManagement = () => {
 
     const handlleViewPrivateKey = async () => {
       try {
-        await AuthenticationModal({
-          wallet,
-          async validationHandler(password) {
-            const privateKey = await wallet.getPrivateKey(password, data);
-            Modal.info({
-              title: 'Private Key',
-              centered: true,
-              content: privateKey,
-              cancelText: null,
-              okText: null,
-              className: 'single-btn',
-            });
-          },
+        await AuthenticationModal({ wallet });
+        const privateKey = await keyring.exportAccount(data);
+        Modal.info({
+          title: 'Private Key',
+          centered: true,
+          content: privateKey,
+          cancelText: null,
+          okText: null,
+          className: 'single-btn',
         });
       } catch (e) {
         // NOTHING

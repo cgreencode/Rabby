@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { EventEmitter } from 'events';
 import HDKey from 'hdkey';
-import * as ethUtil from 'ethereumjs-util';
-import * as sigUtil from 'eth-sig-util';
+import ethUtil from 'ethereumjs-util';
+import sigUtil from 'eth-sig-util';
 import { TransactionFactory } from '@ethereumjs/tx';
 
 const pathBase = 'm';
@@ -20,23 +20,6 @@ const NETWORK_API_URLS = {
 };
 
 class LedgerBridgeKeyring extends EventEmitter {
-  accountDetails: {};
-  bridgeUrl: string | null;
-  type: string;
-  page: number;
-  perPage: number;
-  unlockedAccount: number;
-  hdk: any;
-  paths: {};
-  iframe: HTMLIFrameElement | null;
-  network: string;
-  implementFullBIP44: boolean;
-  msgQueue: (() => void)[];
-  iframeLoaded: boolean;
-  hdPath: any;
-  accounts: any;
-  delayedPromise: any;
-  static type: string;
   constructor(opts = {}) {
     super();
     this.accountDetails = {};
@@ -67,7 +50,7 @@ class LedgerBridgeKeyring extends EventEmitter {
     });
   }
 
-  deserialize(opts: any = {}) {
+  deserialize(opts = {}) {
     this.hdPath = opts.hdPath || hdPathString;
     this.bridgeUrl = opts.bridgeUrl || BRIDGE_URL;
     this.accounts = opts.accounts || [];
@@ -136,7 +119,7 @@ class LedgerBridgeKeyring extends EventEmitter {
     this.hdPath = hdPath;
   }
 
-  unlock(hdPath?): Promise<string> {
+  unlock(hdPath) {
     if (this.isUnlocked() && !hdPath) {
       return Promise.resolve('already unlocked');
     }
@@ -223,7 +206,7 @@ class LedgerBridgeKeyring extends EventEmitter {
     delete this.accountDetails[ethUtil.toChecksumAddress(address)];
   }
 
-  updateTransportMethod(useLedgerLive = false) {
+  updateTransportMethod(useLedgerLive = true) {
     return new Promise((resolve, reject) => {
       // If the iframe isn't loaded yet, let's store the desired useLedgerLive value and
       // optimistically return a successful promise
@@ -283,7 +266,7 @@ class LedgerBridgeKeyring extends EventEmitter {
     // forfeiting the benefit of immutability until this happens. We do still
     // return a Transaction that is frozen if the originally provided
     // transaction was also frozen.
-    const unfrozenTx: any = TransactionFactory.fromTxData(tx.toJSON(), {
+    const unfrozenTx = TransactionFactory.fromTxData(tx.toJSON(), {
       common: tx.common,
       freeze: false,
     });
@@ -367,7 +350,7 @@ class LedgerBridgeKeyring extends EventEmitter {
             },
             ({ success, payload }) => {
               if (success) {
-                let v: string | number = payload.v - 27;
+                let v = payload.v - 27;
                 v = v.toString(16);
                 if (v.length < 2) {
                   v = `0${v}`;
@@ -411,7 +394,7 @@ class LedgerBridgeKeyring extends EventEmitter {
       );
     }
     const { hdPath } = this.accountDetails[checksummedAddress];
-    const unlockedAddress: string = await this.unlock(hdPath);
+    const unlockedAddress = await this.unlock(hdPath);
 
     // unlock resolves to the address for the given hdPath as reported by the ledger device
     // if that address is not the requested address, then this account belongs to a different device or seed
@@ -423,7 +406,7 @@ class LedgerBridgeKeyring extends EventEmitter {
     return hdPath;
   }
 
-  async signTypedData(withAccount, data, options: any = {}) {
+  async signTypedData(withAccount, data, options = {}) {
     const isV4 = options.version === 'V4';
     if (!isV4) {
       throw new Error(
@@ -444,7 +427,7 @@ class LedgerBridgeKeyring extends EventEmitter {
       isV4
     ).toString('hex');
     const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
-      primaryType as string,
+      primaryType,
       message,
       types,
       isV4
@@ -466,7 +449,7 @@ class LedgerBridgeKeyring extends EventEmitter {
     });
 
     if (success) {
-      let v: any = payload.v - 27;
+      let v = payload.v - 27;
       v = v.toString(16);
       if (v.length < 2) {
         v = `0${v}`;
@@ -502,19 +485,11 @@ class LedgerBridgeKeyring extends EventEmitter {
     this.hdk = new HDKey();
   }
 
-  restart() {
-    if (this.iframe) {
-      this.iframeLoaded = false;
-      this.iframe.remove();
-    }
-    this._setupIframe();
-  }
-
   /* PRIVATE METHODS */
 
   _setupIframe() {
     this.iframe = document.createElement('iframe');
-    this.iframe.src = this.bridgeUrl!;
+    this.iframe.src = this.bridgeUrl;
     this.iframe.onload = async () => {
       // If the ledger live preference was set before the iframe is loaded,
       // set it after the iframe has loaded
@@ -539,7 +514,7 @@ class LedgerBridgeKeyring extends EventEmitter {
   }
 
   _getOrigin() {
-    const tmp = this.bridgeUrl!.split('/');
+    const tmp = this.bridgeUrl.split('/');
     tmp.splice(-1, 1);
     return tmp.join('/');
   }
@@ -548,10 +523,10 @@ class LedgerBridgeKeyring extends EventEmitter {
     msg.target = 'LEDGER-IFRAME';
     if (!this.iframeLoaded) {
       this.msgQueue.push(() => {
-        this.iframe?.contentWindow?.postMessage(msg, '*');
+        this.iframe.contentWindow.postMessage(msg, '*');
       });
     } else {
-      this.iframe?.contentWindow?.postMessage(msg, '*');
+      this.iframe.contentWindow.postMessage(msg, '*');
     }
     const eventListener = ({ origin, data }) => {
       if (origin !== this._getOrigin()) {
@@ -589,11 +564,7 @@ class LedgerBridgeKeyring extends EventEmitter {
   }
 
   async _getAccountsBIP44(from, to) {
-    const accounts: {
-      address: string;
-      balance: number | null;
-      index: number;
-    }[] = [];
+    const accounts = [];
 
     for (let i = from; i < to; i++) {
       const path = this._getPathForIndex(i);
@@ -618,11 +589,7 @@ class LedgerBridgeKeyring extends EventEmitter {
   }
 
   _getAccountsLegacy(from, to) {
-    const accounts: {
-      address: string;
-      balance: number | null;
-      index: number;
-    }[] = [];
+    const accounts = [];
 
     for (let i = from; i < to; i++) {
       const address = this._addressFromIndex(pathBase, i);

@@ -2,6 +2,7 @@ import * as ethUtil from 'ethereumjs-util';
 import Wallet, { thirdparty } from 'ethereumjs-wallet';
 import { ethErrors } from 'eth-rpc-errors';
 import * as bip39 from 'bip39';
+import encryptor from 'browser-passworder';
 import {
   keyringService,
   preferenceService,
@@ -14,10 +15,9 @@ import {
 import { openIndexPage } from 'background/webapi/tab';
 import { KEYRING_CLASS, DisplayedKeryring } from 'background/service/keyring';
 import BaseController from './base';
-import { CHAINS_ENUM, CHAINS, KEYRING_TYPE } from 'consts';
-import { Account } from '../service/preference';
+import { CHAINS_ENUM, CHAINS } from 'consts';
+import preference, { Account } from '../service/preference';
 import { ConnectedSite } from '../service/permission';
-import DisplayKeyring from '../service/keyring/display';
 
 export class WalletController extends BaseController {
   openapi = openapiService;
@@ -52,6 +52,10 @@ export class WalletController extends BaseController {
     if (!address) return null;
     return preferenceService.getAddressBalance(address);
   };
+
+  getExternalLinkAck = () => preference.getExternalLinkAck();
+
+  setExternalLinkAck = (ack) => preference.setExternalLinkAck(ack);
 
   /* chains */
   getSupportChains = () => chainService.getSupportChains();
@@ -112,25 +116,6 @@ export class WalletController extends BaseController {
       await keyringService.addKeyring(keyring);
     }
     return this._setCurrentAccountFromKeyring(keyring, -1);
-  };
-
-  getPrivateKey = async (password: string, address: string) => {
-    await this.verifyPassword(password);
-    const keyring = await keyringService.getKeyringForAccount(
-      address,
-      KEYRING_TYPE.SimpleKeyring
-    );
-    if (!keyring) return null;
-    return await keyring.exportAccount(address);
-  };
-
-  getMnemonics = async (password: string) => {
-    await this.verifyPassword(password);
-    const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
-    const serialized = await keyring.serialize();
-    const seedWords = serialized.mnemonic;
-
-    return seedWords;
   };
 
   importPrivateKey = async (data) => {
@@ -226,9 +211,12 @@ export class WalletController extends BaseController {
     this._setCurrentAccountFromKeyring(keyring);
   };
 
-  checkHasMnemonic = () => {
+  getCurrentMnemonics = async () => {
     const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
-    return !!keyring.mnemonic;
+    const serialized = await keyring.serialize();
+    const seedWords = serialized.mnemonic;
+
+    return seedWords;
   };
 
   deriveNewAccountFromMnemonic = async () => {
@@ -264,10 +252,7 @@ export class WalletController extends BaseController {
         : account.type;
 
       result[type] = result[type] || [];
-      result[type].push({
-        ...account,
-        keyring: new DisplayKeyring(account.keyring),
-      });
+      result[type].push(account);
     }
 
     return result;
@@ -286,10 +271,7 @@ export class WalletController extends BaseController {
         : account.type;
 
       result[type] = result[type] || [];
-      result[type].push({
-        ...account,
-        keyring: new DisplayKeyring(account.keyring),
-      });
+      result[type].push(account);
     }
 
     return result;
@@ -298,11 +280,6 @@ export class WalletController extends BaseController {
   changeAccount = (account: Account) => {
     preferenceService.setCurrentAccount(account);
   };
-
-  isUseLedgerLive = () => preferenceService.isUseLedgerLive();
-
-  updateUseLedgerLive = async (value: boolean) =>
-    preferenceService.updateUseLedgerLive(value);
 
   connectHardware = async (type, hdPath) => {
     let keyring;
