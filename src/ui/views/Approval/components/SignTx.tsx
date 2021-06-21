@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { intToHex, isHexString } from 'ethereumjs-util';
-import { Button, Modal } from 'antd';
+import { Button } from 'antd';
 import { Checkbox } from 'ui/component';
 import AccountCard from './AccountCard';
 import SecurityCheckBar from './SecurityCheckBar';
@@ -161,10 +161,7 @@ const SignTx = ({ params, origin }) => {
       await checkTx(currentAccount!.address);
       setIsReady(true);
     } catch (e) {
-      Modal.error({
-        title: 'Error',
-        content: e.message || JSON.stringify(e),
-      });
+      // NOTHING
     }
   };
 
