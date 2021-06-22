@@ -1,4 +1,4 @@
-import React, { ReactNode, SyntheticEvent, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import cx from 'clsx';
 import IconCheck from 'ui/assets/check.svg';
 import './style.less';
@@ -32,15 +32,14 @@ const Checkbox = ({
     setCheckState(checked);
   }, [checked]);
 
-  const handleValueChange = (e: SyntheticEvent, checked) => {
-    e.stopPropagation();
+  const handleValueChange = (checked) => {
     onChange && onChange(checked);
   };
 
   return (
     <div
       className={cx('rabby-checkbox__wrapper', className)}
-      onClick={(e) => handleValueChange(e, !checkState)}
+      onClick={() => handleValueChange(!checkState)}
     >
       <div
         className="rabby-checkbox"
