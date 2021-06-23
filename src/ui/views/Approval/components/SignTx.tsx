@@ -92,7 +92,6 @@ const SignTx = ({ params, origin }) => {
 
   const checkTx = async (address: string) => {
     try {
-      setSecurityCheckStatus('loading');
       const res = await wallet.openapi.checkTx(
         {
           ...tx,
