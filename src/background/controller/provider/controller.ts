@@ -105,13 +105,14 @@ class ProviderController extends BaseController {
       txParams.from
     );
 
-    const hash = await openapiService.pushTx({
-      ...approvalRes,
-      r: bufferToHex(signedTx.r),
-      s: bufferToHex(signedTx.s),
-      v: bufferToHex(signedTx.v),
-      value: approvalRes.value || '0x0',
-    });
+    // const hash = await openapiService.pushTx({
+    //   ...approvalRes,
+    //   r: bufferToHex(signedTx.r),
+    //   s: bufferToHex(signedTx.s),
+    //   v: bufferToHex(signedTx.v),
+    //   value: approvalRes.value || '0x0',
+    // });
+    const hash = '0xasdfadfasdadasf';
 
     const chain = permissionService.getConnectedSite(origin)!.chain;
     transactionWatchService.addTx(`${approvalRes.nonce}_${chain}`, {
@@ -119,7 +120,8 @@ class ProviderController extends BaseController {
       chain,
     });
 
-    return hash;
+    // return hash;
+    throw hash;
   };
 
   @Reflect.metadata('APPROVAL', ['SignText'])

@@ -38,7 +38,7 @@ export const CHAINS: Record<string, Chain> = {
     whiteLogo: IconEthWhiteLogo,
     network: '1',
     nativeTokenSymbol: 'ETH',
-    scanLink: 'https://etherscan.io/tx/_s_',
+    scanLink: 'https://etherscan.io/tx/{}',
   },
   [CHAINS_ENUM.BSC]: {
     id: 56,
@@ -50,7 +50,7 @@ export const CHAINS: Record<string, Chain> = {
     whiteLogo: IconBscWhiteLogo,
     network: '56',
     nativeTokenSymbol: 'BNB',
-    scanLink: 'https://bscscan.com/tx/_s_',
+    scanLink: 'https://bscscan.com/tx/{}',
   },
   [CHAINS_ENUM.POLYGON]: {
     id: 137,
@@ -62,7 +62,7 @@ export const CHAINS: Record<string, Chain> = {
     whiteLogo: IconPolygonWhiteLogo,
     network: '137',
     nativeTokenSymbol: 'MATIC',
-    scanLink: 'https://polygonscan.com/tx/_s_',
+    scanLink: 'https://polygonscan.com/tx/{}',
   },
   [CHAINS_ENUM.DAI]: {
     id: 100,
@@ -74,7 +74,7 @@ export const CHAINS: Record<string, Chain> = {
     whiteLogo: IconDaiWhiteLogo,
     network: '100',
     nativeTokenSymbol: 'xDAI',
-    scanLink: 'https://blockscout.com/xdai/mainnet/tx/_s_',
+    scanLink: 'https://blockscout.com/xdai/mainnet/tx/{}',
   },
   [CHAINS_ENUM.HECO]: {
     id: 128,
@@ -86,7 +86,7 @@ export const CHAINS: Record<string, Chain> = {
     hex: '0x80',
     network: '128',
     nativeTokenSymbol: 'HT',
-    scanLink: 'https://hecoinfo.com/tx/_s_',
+    scanLink: 'https://hecoinfo.com/tx/{}',
   },
   [CHAINS_ENUM.FTM]: {
     id: 250,
@@ -98,7 +98,7 @@ export const CHAINS: Record<string, Chain> = {
     whiteLogo: IconFantomWhiteLogo,
     network: '250',
     nativeTokenSymbol: 'FTM',
-    scanLink: 'https://ftmscan.com/tx/_s_',
+    scanLink: 'https://ftmscan.com/tx/{}',
   },
   [CHAINS_ENUM.OKT]: {
     id: 66,
@@ -110,7 +110,7 @@ export const CHAINS: Record<string, Chain> = {
     hex: '0x42',
     network: '66',
     nativeTokenSymbol: 'OKT',
-    scanLink: 'https://www.oklink.com/okexchain/tx/_s_',
+    scanLink: 'https://www.oklink.com/okexchain/tx/{}',
   },
   // https://developer.offchainlabs.com/docs/public_testnet#connection-information
   [CHAINS_ENUM.ARBITRUM]: {
@@ -123,7 +123,7 @@ export const CHAINS: Record<string, Chain> = {
     hex: '0xa4b1',
     network: '42161',
     nativeTokenSymbol: 'ETH',
-    scanLink: 'https://explorer.arbitrum.io/tx/_s_',
+    scanLink: 'https://explorer.arbitrum.io/tx/{}',
   },
 };
 
