@@ -199,3 +199,5 @@ export const GAS_LEVEL_TEXT = {
   fast: 'Instant',
   custom: 'Custom',
 };
+
+export const IS_WINDOWS = /windows/i.test(navigator.userAgent);

@@ -30,8 +30,8 @@ const Approval = () => {
     init();
   }, []);
 
-  const { aporovalComponent, params, origin, requestDeffer } = approval;
-  const CurrentApprovalComponent = ApprovalComponent[aporovalComponent];
+  const { approvalComponent, params, origin, requestDefer } = approval;
+  const CurrentApprovalComponent = ApprovalComponent[approvalComponent];
 
   return (
     <div className="approval">
@@ -42,7 +42,7 @@ const Approval = () => {
       <CurrentApprovalComponent
         params={params}
         origin={origin}
-        requestDeffer={requestDeffer}
+        requestDefer={requestDefer}
       />
     </div>
   );
