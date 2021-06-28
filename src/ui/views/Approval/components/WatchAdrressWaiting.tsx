@@ -8,10 +8,10 @@ import { QrScan } from 'ui/assets';
 const WatchAddressWaiting = ({
   params: { address },
   // currently doesn't support
-  requestDefer,
+  requestDeffer,
 }: {
   params: { address: string };
-  requestDefer: Promise<any>;
+  requestDeffer: Promise<any>;
 }) => {
   const [, , rejectApproval] = useApproval();
 
