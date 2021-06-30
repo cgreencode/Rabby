@@ -96,15 +96,9 @@ const Settings = () => {
   return (
     <div className="settings">
       <PageHeader>Settings</PageHeader>
-      <Button
-        block
-        size="large"
-        type="primary"
-        className="flex justify-center items-center lock-wallet"
-        onClick={lockWallet}
-      >
+      <div className="field lock-wallet" onClick={lockWallet}>
         <img src={IconLock} className="icon icon-lock" /> Lock
-      </Button>
+      </div>
       {renderData.map((data) => (
         <Field
           key={data.content}
@@ -117,6 +111,9 @@ const Settings = () => {
           {data.content}
         </Field>
       ))}
+      <div className="text-12 text-gray-comment text-center mt-40">
+        {process.env.version}
+      </div>
       <OpenApiModal
         visible={showOpenApiModal}
         onFinish={() => setShowOpenApiModal(false)}

@@ -1,5 +1,3 @@
-@import url('./var.less');
-
 .ant-spin {
   line-height: 1;
   .ant-spin-dot {
@@ -11,46 +9,13 @@
   border-radius: 6px;
 }
 
-/*---------------------
-        btn
----------------------*/
-
 .ant-btn {
   border-radius: 6px;
-
-  &:hover {
-    color: #fff;
-    border-color: transparent;
-
-    &::before {
-      opacity: 1;
-    }
-  }
-
-  &::before {
-    display: block;
-    content: ' ';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: rgba(45, 48, 51, 0.1);
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-  }
 }
-
-.ant-btn-primary {
-  &:hover,
-  &:focus {
-    background-color: @primary-color;
-    border-color: @primary-color;
-  }
+.ant-btn:hover, .ant-btn:focus {
+  color: #fff;
+  border-color: transparent;
 }
-/*---------------------
-        message
----------------------*/
 
 .ant-message-notice-content {
   padding: 7px 15px;
@@ -74,10 +39,6 @@
     color: #fff;
   }
 }
-
-/*---------------------
-        modal
----------------------*/
 
 .ant-modal-header,
 .ant-modal-content,
@@ -114,8 +75,7 @@
   padding-bottom: 0;
 }
 .ant-modal-confirm-body {
-  .anticon.anticon-info-circle,
-  .anticon.anticon-exclamation-circle {
+  .anticon.anticon-info-circle, .anticon.anticon-exclamation-circle {
     display: none;
   }
   .ant-modal-confirm-title {
@@ -133,7 +93,6 @@
     padding: 18px 12px;
     border-radius: 6px;
     margin-left: 0 !important;
-    white-space: pre-wrap;
   }
 }
 
@@ -179,13 +138,6 @@
   }
 }
 
-.ant-modal-confirm-info {
-  .ant-modal-confirm-content {
-    max-height: 365px;
-    overflow: auto;
-  }
-}
-
 /*---------------------
         form
 ---------------------*/
@@ -210,7 +162,7 @@
         Switch
 ---------------------*/
 .ant-switch-checked {
-  background-color: #27c193;
+  background-color: #27C193;
 }
 
 /*---------------------
@@ -221,16 +173,16 @@
   overflow: hidden;
   .ant-checkbox-inner {
     border: none;
-    background-color: #d8dfeb;
+    background-color: #D8DFEB;
   }
 }
 
 .ant-checkbox-checked {
   .ant-checkbox-inner {
-    background-color: #8697ff;
+    background-color: #8697FF;
   }
   &::after {
-    border-color: #8697ff;
+    border-color: #8697FF;
   }
 }
 
@@ -266,9 +218,5 @@ textarea {
 .ant-skeleton-element .ant-skeleton-input {
   height: 18px;
   border-radius: 2px;
-  background: linear-gradient(
-    90deg,
-    rgba(216, 223, 235, 0.55) 0%,
-    rgba(216, 223, 235, 0.6) 95.31%
-  );
+  background: linear-gradient(90deg, rgba(216, 223, 235, 0.55) 0%, rgba(216, 223, 235, 0.6) 95.31%);
 }
