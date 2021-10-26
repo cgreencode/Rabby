@@ -76,7 +76,7 @@ class WatchKeyring extends EventEmitter {
     }
 
     const connector = new WalletConnect({
-      bridge: 'https://wcbridge.rabby.io',
+      bridge: 'https://wcbridge.debank.com',
       clientMeta: {
         description: i18n.t('appDescription'),
         url: 'https://rabby.io',

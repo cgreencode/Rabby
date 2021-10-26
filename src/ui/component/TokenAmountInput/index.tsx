@@ -27,7 +27,6 @@ const TokenAmountInput = ({
   chainId,
 }: TokenAmountInputProps) => {
   const tokenInputRef = useRef<Input>(null);
-  const latestChainId = useRef(chainId);
   const [tokens, setTokens] = useState<TokenItem[]>([]);
   const [originTokenList, setOriginTokenList] = useState<TokenItem[]>([]);
   const [isListLoading, setIsListLoading] = useState(true);
@@ -91,25 +90,18 @@ const TokenAmountInput = ({
       tokens = sortTokensByPrice(
         await wallet.openapi.listToken(address, chainId)
       );
-      if (latestChainId.current === chainId) {
-        setOriginTokenList(tokens);
-        setIsListLoading(false);
-      }
+      setOriginTokenList(tokens);
+      setIsListLoading(false);
     }
-    if (latestChainId.current === chainId) {
-      setTokens(sortTokens('common', tokens));
-      const existCurrentToken = tokens.find((t) => t.id === token.id);
-      if (existCurrentToken) {
-        onTokenChange(existCurrentToken);
-      }
+    setTokens(sortTokens('common', tokens));
+    const existCurrentToken = tokens.find((t) => t.id === token.id);
+    if (existCurrentToken) {
+      onTokenChange(existCurrentToken);
     }
   };
 
   useEffect(() => {
-    setTokens([]);
-    setOriginTokenList([]);
     handleLoadTokens();
-    latestChainId.current = chainId;
   }, [chainId]);
 
   return (
