@@ -272,6 +272,10 @@ const SendToken = () => {
       ...values,
       amount: '',
     });
+    handleFormValuesChange(null, {
+      ...values,
+      amount: '',
+    });
   };
 
   const handleCopyContractAddress = () => {
@@ -488,7 +492,9 @@ const SendToken = () => {
             </div>
             <div className="section-field">
               <span>{t('Price')}</span>
-              <span>${splitNumberByStep(currentToken.price)}</span>
+              <span>
+                ${splitNumberByStep((currentToken.price || 0).toFixed(2))}
+              </span>
             </div>
           </div>
         </div>
