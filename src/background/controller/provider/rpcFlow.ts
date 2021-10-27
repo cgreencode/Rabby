@@ -36,14 +36,13 @@ const flowContext = flow
 
     return next();
   })
-  .use(async (ctx, next) => {
-    const { mapMethod } = ctx;
+  .use(async ({ mapMethod }, next) => {
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       // check lock
       const isUnlock = keyringService.memStore.getState().isUnlocked;
 
       if (!isUnlock) {
-        ctx.request.requestedApproval = true;
+        flow.requestedApproval = true;
         await notificationService.requestApproval({ lock: true });
       }
     }
@@ -60,7 +59,7 @@ const flowContext = flow
     } = ctx;
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       if (!permissionService.hasPerssmion(origin)) {
-        ctx.request.requestedApproval = true;
+        flow.requestedApproval = true;
         const { defaultChain } = await notificationService.requestApproval(
           {
             params: { origin, name, icon },
@@ -88,7 +87,7 @@ const flowContext = flow
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || [];
 
     if (approvalType && (!condition || !condition(ctx.request))) {
-      ctx.request.requestedApproval = true;
+      flow.requestedApproval = true;
       ctx.approvalRes = await notificationService.requestApproval(
         {
           approvalComponent: approvalType,
@@ -110,8 +109,7 @@ const flowContext = flow
 
     return next();
   })
-  .use(async (ctx) => {
-    const { approvalRes, mapMethod, request } = ctx;
+  .use(async ({ approvalRes, mapMethod, request }) => {
     // process request
     const [approvalType] =
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || [];
@@ -128,31 +126,27 @@ const flowContext = flow
 
     requestDefer
       .then((result) => {
-        if (isSignApproval(approvalType)) {
-          eventBus.emit(EVENTS.broadcastToUI, {
-            method: EVENTS.SIGN_FINISHED,
-            params: {
-              success: true,
-              data: result,
-            },
-          });
-        }
+        eventBus.emit(EVENTS.broadcastToUI, {
+          method: EVENTS.SIGN_FINISHED,
+          params: {
+            success: true,
+            data: result,
+          },
+        });
         return result;
       })
       .catch((e: any) => {
-        if (isSignApproval(approvalType)) {
-          eventBus.emit(EVENTS.broadcastToUI, {
-            method: EVENTS.SIGN_FINISHED,
-            params: {
-              success: false,
-              errorMsg: JSON.stringify(e),
-            },
-          });
-        }
+        eventBus.emit(EVENTS.broadcastToUI, {
+          method: EVENTS.SIGN_FINISHED,
+          params: {
+            success: false,
+            errorMsg: JSON.stringify(e),
+          },
+        });
       });
 
     if (uiRequestComponent) {
-      ctx.request.requestedApproval = true;
+      flow.requestedApproval = true;
       return await notificationService.requestApproval({
         approvalComponent: uiRequestComponent,
         params: rest,
@@ -166,9 +160,20 @@ const flowContext = flow
   .callback();
 
 export default (request) => {
-  const ctx: any = { request: { ...request, requestedApproval: false } };
-  return flowContext(ctx).finally(() => {
-    if (ctx.request.requestedApproval) {
+  return flowContext({ request }).finally(() => {
+    const isApproval =
+      Reflect.getMetadata(
+        'APPROVAL',
+        providerController,
+        underline2Camelcase(request?.data.method)
+      ) ||
+      Reflect.getMetadata(
+        'SAFE',
+        providerController,
+        underline2Camelcase(request?.data.method)
+      ) ||
+      flow.requestedApproval;
+    if (isApproval) {
       flow.requestedApproval = false;
       // only unlock notification if current flow is an approval flow
       notificationService.unLock();

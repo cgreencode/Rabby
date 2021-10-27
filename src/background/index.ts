@@ -111,7 +111,7 @@ browser.runtime.onConnect.addListener((port) => {
       }
     });
 
-    const boardcastCallback = (data: any) => {
+    const boardcaseCallback = (data: any) => {
       pm.request({
         type: 'broadcast',
         method: data.method,
@@ -127,9 +127,9 @@ browser.runtime.onConnect.addListener((port) => {
       });
     }
 
-    eventBus.addEventListener(EVENTS.broadcastToUI, boardcastCallback);
+    eventBus.addEventListener(EVENTS.broadcastToUI, boardcaseCallback);
     port.onDisconnect.addListener(() => {
-      eventBus.removeEventListerner(EVENTS.broadcastToUI, boardcastCallback);
+      eventBus.removeEventListerner(EVENTS.broadcastToUI, boardcaseCallback);
     });
 
     return;
