@@ -6,7 +6,6 @@ import React, {
   forwardRef,
   memo,
 } from 'react';
-import { useHistory } from 'react-router-dom';
 import { Skeleton } from 'antd';
 import clsx from 'clsx';
 import { ChainWithBalance } from 'background/service/openapi';
@@ -23,16 +22,17 @@ interface DisplayChainWithWhiteLogo extends ChainWithBalance {
 }
 
 export interface AddressItemProps {
-  account: string;
+  account: {
+    address: string;
+    brandName: string;
+  };
   keyring?: any;
   ActionButton?: FunctionComponent<{ data: string; keyring: any }>;
   className?: string;
   hiddenAddresses?: { type: string; address: string }[];
-  onClick?(account: string, keyring: any): void;
+  onClick?(account: string, keyring: any, brandName: string): void;
   showAssets?: boolean;
   noNeedBalance?: boolean;
-  currentAccount?: any;
-  icon?: string;
 }
 
 const HARDWARES = {
@@ -117,49 +117,43 @@ const AddressItem = memo(
         showAssets,
         onClick,
         noNeedBalance = false,
-        currentAccount = null,
-        icon = '',
       }: AddressItemProps,
       ref
     ) => {
       if (!account) {
         return null;
       }
-      const history = useHistory();
-      console.log(history.location.pathname);
       const [isLoading, setIsLoading] = useState(false);
       const [balance, chainBalances, getAddressBalance] = useCurrentBalance(
-        account,
+        account.address,
         false,
         noNeedBalance
       );
 
       const updateBalance = async () => {
         setIsLoading(true);
-        await getAddressBalance(account.toLowerCase());
+        await getAddressBalance(account.address.toLowerCase());
         setIsLoading(false);
       };
 
       useImperativeHandle(ref, () => ({
         updateBalance,
       }));
+
       const isDisabled = hiddenAddresses.find(
-        (item) => item.address === account && item.type === keyring.type
+        (item) => item.address === account.address && item.type === keyring.type
       );
-      const isCurrentAddress = currentAccount?.address === account;
-      const isManagement = history.location.pathname === '/settings/address';
+
       return (
         <li
-          className={clsx(
-            className,
-            { 'no-assets': !showAssets },
-            isCurrentAddress && 'highlight-address'
-          )}
-          onClick={() => onClick && onClick(account, keyring)}
+          className={clsx(className, { 'no-assets': !showAssets })}
+          onClick={() =>
+            onClick && onClick(account.address, keyring, account.brandName)
+          }
         >
           <div
             className={clsx(
-              'flex items-center flex-wrap relative',
+              'flex items-center flex-wrap',
               isDisabled && 'opacity-40'
             )}
           >
@@ -173,7 +167,7 @@ const AddressItem = memo(
                 </span>
               )}
               <AddressViewer
-                address={account}
+                address={account.address}
                 showArrow={false}
                 className="subtitle"
               />
@@ -204,7 +198,6 @@ const AddressItem = memo(
                 </div>
               </div>
             )}
-            {icon && <img src={icon} className="item-right-icon" />}
           </div>
           {keyring && (
             <div className="action-button flex items-center flex-shrink-0">
@@ -217,7 +210,7 @@ const AddressItem = memo(
                 />
               )}
               {ActionButton && (
-                <ActionButton data={account} keyring={keyring} />
+                <ActionButton data={account.address} keyring={keyring} />
               )}
             </div>
           )}

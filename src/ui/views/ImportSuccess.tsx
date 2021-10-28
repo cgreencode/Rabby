@@ -16,15 +16,12 @@ const ImportSuccess = ({ isPopup = false }: { isPopup?: boolean }) => {
     accounts: Account[];
     hasDivider: boolean;
     title: string;
-    brand?: string;
-    image?: string;
   }>();
   const { t } = useTranslation();
+
   const {
     accounts,
     hasDivider = true,
-    brand,
-    image,
     title = t('Successfully imported'),
   } = state;
 
@@ -99,7 +96,6 @@ const ImportSuccess = ({ isPopup = false }: { isPopup?: boolean }) => {
               key={account.address}
               account={account.address}
               showAssets
-              icon={image}
             />
           ))}
         </div>

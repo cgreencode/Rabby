@@ -13,9 +13,8 @@ interface AddressListProps {
   list: Record<string, DisplayedKeryring[]>;
   ActionButton: AddressItemProps['ActionButton'];
   hiddenAddresses?: { type: string; address: string }[];
-  onClick?(account: string, keyring: any): void;
+  onClick?(account: string, keyring: any, brandName: string): void;
   onShowMnemonics?(): void;
-  currentAccount?: any;
 }
 
 const SORT_WEIGHT = {
@@ -34,7 +33,6 @@ const AddressList: any = forwardRef(
       onClick,
       hiddenAddresses = [],
       onShowMnemonics,
-      currentAccount,
     }: AddressListProps,
     ref
   ) => {
@@ -87,13 +85,12 @@ const AddressList: any = forwardRef(
             {group.map(({ accounts, keyring }) =>
               accounts.map((account, index) => (
                 <AddressItem
-                  key={account}
+                  key={account.address}
                   account={account}
                   keyring={keyring}
                   ActionButton={ActionButton}
                   onClick={onClick}
                   hiddenAddresses={hiddenAddresses}
-                  currentAccount={currentAccount}
                   showAssets
                   ref={(el) => {
                     let i: number | null = index;

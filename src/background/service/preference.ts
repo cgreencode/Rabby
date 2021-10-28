@@ -8,7 +8,9 @@ import { browser } from 'webextension-polyfill-ts';
 export interface Account {
   type: string;
   address: string;
+  brandName: string;
 }
+
 interface PreferenceStore {
   currentAccount: Account | undefined | null;
   externalLinkAck: boolean;
@@ -21,7 +23,6 @@ interface PreferenceStore {
   watchAddressPreference: Record<string, number>;
   isDefaultWallet: boolean;
   lastTimeSendToken: Record<string, TokenItem>;
-  walletSavedList: [];
 }
 
 const SUPPORT_LOCALES = ['en', 'zh_CN'];
@@ -49,7 +50,6 @@ class PreferenceService {
         watchAddressPreference: {},
         isDefaultWallet: false,
         lastTimeSendToken: {},
-        walletSavedList: [],
       },
     });
     if (!this.store.locale) {
@@ -129,17 +129,19 @@ class PreferenceService {
     };
   };
 
-  hideAddress = (type: string, address: string) => {
+  hideAddress = (type: string, address: string, brandName: string) => {
     this.store.hiddenAddresses = [
       ...this.store.hiddenAddresses,
       {
         type,
         address,
+        brandName,
       },
     ];
     if (
       type === this.store.currentAccount?.type &&
-      address === this.store.currentAccount.address
+      address === this.store.currentAccount.address &&
+      brandName === this.store.currentAccount.brandName
     ) {
       this.resetCurrentAccount();
     }
@@ -232,13 +234,6 @@ class PreferenceService {
 
   isUseLedgerLive = () => {
     return this.store.useLedgerLive;
-  };
-  getWalletSavedList = () => {
-    return this.store.walletSavedList;
-  };
-
-  updateWalletSavedList = (list: []) => {
-    this.store.walletSavedList = list;
   };
 }
 
